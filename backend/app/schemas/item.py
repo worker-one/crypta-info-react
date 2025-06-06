@@ -3,8 +3,9 @@ from pydantic import BaseModel
 
 # Base schema for common attributes
 class ItemBase(BaseModel):
+    id: int
+    logo_url: str
     name: str
-    # Add other common fields
 
 # Schema for reading item data (e.g., in API responses)
 class ItemRead(ItemBase):
