@@ -19,6 +19,7 @@ const ReviewsSection = ({ itemId, itemName }) => {
         try {
             const response = await listItemReviews(itemId, { limit: 100, sort_by: 'created_at', direction: 'desc' });
             const fetchedReviews = response.items.filter(review => review.comment !== null);
+            console.log('Fetched reviews:', fetchedReviews); // Debugging log
             setAllReviews(fetchedReviews);
             setReviews(fetchedReviews);
         } catch (err) {

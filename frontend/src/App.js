@@ -1,11 +1,13 @@
 import React from 'react';
 import { Routes, Route, Link } from 'react-router';
-import { Typography, Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import exchangeRoutes from './routes/exchanges.js'; // Import the exchange routes
 import bookRoutes from './routes/books.js';
 import authRoutes from './routes/auth.js'; // Import the auth routes
 import adminRoutes from './routes/admin.js'; // Import the admin routes
 import IndexPage from './pages/index.js';
+import profileRoutes from './routes/profile.js'; // Import the profile routes
+import staticRoutes from './routes/static.js'; // Import static routes
 
 // Basic theme for Material UI
 const theme = createTheme({
@@ -42,7 +44,8 @@ function App() {
                     {bookRoutes} {/* Use the imported book routes */}
                     {authRoutes} {/* Use the imported auth routes */}
                     {adminRoutes} {/* Add admin routes if any */}
-                    {/* Add other routes here */}
+                    {profileRoutes } {/* Add profile routes if any */}
+                    { staticRoutes } {/* Add static routes if any */}
                 </Routes>
             </main>
         </ThemeProvider>

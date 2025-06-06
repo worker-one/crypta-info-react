@@ -65,7 +65,7 @@ const BookDetailsPage = () => {
     if (isLoading) return <Container sx={{ textAlign: 'center', mt: 5 }}><CircularProgress size={60} /></Container>;
     if (error) return <Container><Alert severity="error" sx={{ mt: 2 }}>{error}</Alert></Container>;
     if (!book) return <Container><Typography sx={{mt:2}}>Книга не найдена.</Typography></Container>;
-
+    console.log('Book details:', book); // Debugging log
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />

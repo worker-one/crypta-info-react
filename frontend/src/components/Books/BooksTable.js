@@ -180,7 +180,7 @@ const BooksTable = () => {
                     {/* Cover */}
                     <TableCell align="center">
                       <Avatar
-                        src={book.cover_image_url || book.logo_url}
+                        src={book.logo_url || '../assets/images/book-cover-placeholder.png'}
                         alt={`${book.name || 'Book'} Cover`}
                         variant="square"
                         sx={{ 
@@ -210,7 +210,7 @@ const BooksTable = () => {
 
                     {/* Reviews */}
                     <TableCell align="center">
-                        <MuiLink color='secondary' align='' component={RouterLink} to={`/books/details/${book.id}`} onClick={(e) => e.stopPropagation()}>
+                        <MuiLink color='secondary' align='center' component={RouterLink} to={`/books/details/${book.id}`} onClick={(e) => e.stopPropagation()}>
                         {reviewCount}
                         </MuiLink>
                     </TableCell>

@@ -71,11 +71,11 @@ async function fetchApi(endpoint, options = {}, requiresAuth = false) {
 
 /**
  * Fetches the content of a static page by its slug.
- * @param {string} slug - The slug of the static page (e.g., 'about', 'faq').
+ * @param {string} slug - The slug of the static page (e.g., 'about', 'faq', 'terms').
  * @returns {Promise<object>} - The static page data { title: string, content: string, slug: string }.
  */
 export async function fetchStaticPage(slug) {
-    return fetchApi(`/${slug}`, { method: 'GET' }); // Public endpoint
+    return fetchApi(`/${slug}`, { method: 'GET' });
 }
 
 /**
@@ -273,6 +273,15 @@ export async function listItemReviews(itemId, params = { skip: 0, limit: 10 }) {
     return fetchApi(`/reviews/item/${itemId}?${query}`, { method: 'GET' }); // Public endpoint for approved reviews
 }
 
+/**
+ * Fetches reviews for me
+    * @param {object} params - Pagination and filtering parameters (e.g., { skip: 0, limit: 10, moderation_status: 'approved' })
+    * @returns {Promise<object>} - The paginated response with review items.
+    */
+export async function listMyItemReviews(params = { skip: 0, limit: 10 }) {
+    const query = new URLSearchParams(params).toString();
+    return fetchApi(`/reviews/me?${query}`, { method: 'GET' }, true); // Requires authentication
+}
 /**
  * Vote on the usefulness of a review.
  * @param {string|number} reviewId - The ID of the review to vote on.
