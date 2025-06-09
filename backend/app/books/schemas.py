@@ -57,7 +57,16 @@ class BookReadBrief(ItemReadBrief):
         from_attributes = True
 
 # Schema for detailed view
-class BookRead(BookBase):
+class BookRead(ItemRead):
+    
+    # Book-specific fields
+    # topic: Optional[str] = Field(None, max_length=255, index=True) # Replaced by M2M topics
+    year: Optional[int] = Field(None, ge=1500, le=datetime.now().year)
+    number: Optional[str] = Field(None, max_length=50, index=True, description="ISBN, ASIN, etc.")
+    pages: Optional[int] = Field(None, ge=1, description="Number of pages")
+    author: Optional[str] = Field(None, max_length=255, description="Author(s) of the book")
+    publisher: Optional[str] = Field(None, max_length=255, description="Publisher of the book")
+    
     # Nested related data
     topics: List[TopicRead] = []
     # reviews: List[ReviewRead] = [] # Assuming ReviewRead exists elsewhere

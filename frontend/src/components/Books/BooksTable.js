@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  TableSortLabel, TablePagination, CircularProgress, Typography, Box, Button, Link as MuiLink, Avatar
+  TableSortLabel, TablePagination, CircularProgress, Typography, Box, Button, Link as MuiLink, Avatar,
+  TextField // Added TextField
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router';
 
@@ -54,6 +55,7 @@ const BooksTable = () => {
   const [page, setPage] = useState(0); // 0-indexed
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
   const [totalRows, setTotalRows] = useState(0);
+  const [searchTerm, setSearchTerm] = useState(''); // Added searchTerm state
   const navigate = useNavigate();
 
   const fetchBooks = useCallback(async () => {
@@ -65,9 +67,10 @@ const BooksTable = () => {
         direction: order,
         limit: rowsPerPage,
         page: page + 1, // API is 1-indexed
+        ...(searchTerm && { name: searchTerm }), // Add name parameter if searchTerm is present
       };
       // Remove undefined or null params
-      Object.keys(params).forEach(key => (params[key] == null) && delete params[key]);
+      Object.keys(params).forEach(key => (params[key] == null || params[key] === '') && delete params[key]);
       
       const data = await fetchBooksAPI(params);
       setBooks(data.items || []);
@@ -79,7 +82,7 @@ const BooksTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [order, orderBy, page, rowsPerPage]);
+  }, [order, orderBy, page, rowsPerPage, searchTerm]); // Added searchTerm to dependencies
 
   useEffect(() => {
     fetchBooks();
@@ -101,6 +104,11 @@ const BooksTable = () => {
     setPage(0); // Reset to first page on rows per page change
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(0); // Reset to first page on new search
+  };
+
   const handleRowClick = (event, id) => {
     // Prevent navigation if the click was on a link or button inside the row
     if (event.target.closest('a, button')) {
@@ -119,6 +127,15 @@ const BooksTable = () => {
 
   return (
     <Paper sx={{ width: '100%', mb: 2 }}>
+      <Box sx={{ p: 2 }}>
+        <TextField
+          fullWidth
+          label="Поиск по названию книги"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </Box>
       <TableContainer>
         <Table stickyHeader aria-label="books table">
           <TableHead>
@@ -130,7 +147,6 @@ const BooksTable = () => {
                   padding={headCell.disablePadding ? 'none' : 'normal'}
                   sortDirection={orderBy === headCell.id ? order : false}
                   sx={{ 
-                    fontWeight: 'bold',
                     ...(headCell.id === 'cover' && { width: '80px' }),
                     ...(headCell.id === 'index' && { width: '60px' }),
                     ...(headCell.id === 'actions' && { width: '120px' })
@@ -257,7 +273,7 @@ const BooksTable = () => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="Строк на странице:"
+        labelRowsPerPage="Показать:"
         labelDisplayedRows={({ from, to, count }) => `${from}-${to} из ${count !== -1 ? count : `больше чем ${to}`}`}
       />
     </Paper>

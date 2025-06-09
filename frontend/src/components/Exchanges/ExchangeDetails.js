@@ -45,7 +45,7 @@ const ExchangeDetails = ({ exchange }) => {
                         <Typography variant="subtitle1" color="text.secondary" align='center'>Объем (24ч)</Typography>
                     </Grid>
                     <Grid item xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Year Founded - Added item prop */}
-                        <Typography variant="h6">{exchange.year_founded || 'N/A'}</Typography>
+                        <Typography variant="h6" align='center'>{exchange.year_founded || 'N/A'}</Typography>
                         <Typography variant="subtitle1" color="text.secondary" align='center'>Год Основания</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={2}> {/* Country - Added item prop */}
