@@ -1,6 +1,6 @@
 // filepath: /home/konstantin/workspace/crypta-info-react/frontend/src/components/ExchangeDetails/ExchangeReviews.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Button, ButtonGroup, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, Button, ButtonGroup, CircularProgress, Alert, Container } from '@mui/material';
 import ReviewsList from '../Reviews/ReviewsList';
 import ReviewForm from '../Reviews/ReviewForm';
 import { listItemReviews } from '../../client/api'; // Adjust path
@@ -70,32 +70,36 @@ const ExchangeReviews = ({ exchangeId, exchangeName }) => {
 
 
     return (
-        <Box sx={{ mt: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h5">Отзывы о {exchangeName}</Typography>
-                <Button color="secondary" variant="contained" onClick={() => setShowSubmitForm(!showSubmitForm)}>
-                    {showSubmitForm ? 'Отменить' : 'Оставить отзыв'}
-                </Button>
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            <Box sx={{ mt: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h5">Отзывы о {exchangeName}</Typography>
+                    <Button variant="contained" onClick={() => setShowSubmitForm(!showSubmitForm)}>
+                        {showSubmitForm ? 'Отменить' : 'Оставить отзыв'}
+                    </Button>
+                </Box>
+
+                {showSubmitForm && (
+                    <ReviewForm itemId={exchangeId} onItemReviewed={handleReviewSubmitted} />
+                )}
+
+                {allReviews && allReviews.length > 0 && (
+                    <Box sx={{ my: 2 }}>
+                        <ButtonGroup variant="outlined" aria-label="outlined button group">
+                            <Button onClick={() => setSortBy('date')} disabled={sortBy === 'date'}>новые</Button>
+                            <Button color="success" onClick={() => setSortBy('positive')} disabled={sortBy === 'positive'}>хорошие</Button>
+                            <Button color="error" onClick={() => setSortBy('negative')} disabled={sortBy === 'negative'}>плохие</Button>
+                        </ButtonGroup>
+                    </Box>
+                )}
+
+                {isLoading && <CircularProgress />}
+                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+                {!isLoading && !error && (
+                    <ReviewsList reviews={reviews} isLoading={false} error={null} onVote={handleVote} />
+                )}
             </Box>
-
-            {showSubmitForm && (
-                <ReviewForm itemId={exchangeId} onItemReviewed={handleReviewSubmitted} />
-            )}
-
-            <Box sx={{ my: 2 }}>
-                <ButtonGroup variant="outlined" aria-label="outlined button group">
-                    <Button onClick={() => setSortBy('date')} disabled={sortBy === 'date'}>Сначала новые</Button>
-                    <Button color="sucess" onClick={() => setSortBy('positive')} disabled={sortBy === 'positive'}>Сначала хорошие</Button>
-                    <Button color="error" onClick={() => setSortBy('negative')} disabled={sortBy === 'negative'}>Сначала плохие</Button>
-                </ButtonGroup>
-            </Box>
-
-            {isLoading && <CircularProgress />}
-            {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-            {!isLoading && !error && (
-                <ReviewsList reviews={reviews} isLoading={false} error={null} onVote={handleVote} />
-            )}
-        </Box>
+        </Container>
     );
 };
 

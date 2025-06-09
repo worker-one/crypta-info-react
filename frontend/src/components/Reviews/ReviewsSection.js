@@ -78,13 +78,15 @@ const ReviewsSection = ({ itemId, itemName }) => {
                 <ReviewForm itemId={itemId} onItemReviewed={handleReviewSubmitted} />
             )}
 
-            <Box sx={{ my: 2 }}>
-                <ButtonGroup variant="outlined" aria-label="outlined button group">
-                    <Button onClick={() => setSortBy('date')} disabled={sortBy === 'date'}>Сначала новые</Button>
-                    <Button color="success" onClick={() => setSortBy('positive')} disabled={sortBy === 'positive'}>Сначала хорошие</Button>
-                    <Button color="error" onClick={() => setSortBy('negative')} disabled={sortBy === 'negative'}>Сначала плохие</Button>
-                </ButtonGroup>
-            </Box>
+            {allReviews && allReviews.length > 0 && (
+                <Box sx={{ my: 2 }}>
+                    <ButtonGroup variant="outlined" aria-label="outlined button group">
+                        <Button onClick={() => setSortBy('date')} disabled={sortBy === 'date'}>новые</Button>
+                        <Button color="success" onClick={() => setSortBy('positive')} disabled={sortBy === 'positive'}>хорошие</Button>
+                        <Button color="error" onClick={() => setSortBy('negative')} disabled={sortBy === 'negative'}>плохие</Button>
+                    </ButtonGroup>
+                </Box>
+            )}
 
             {isLoading && <CircularProgress />}
             {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}

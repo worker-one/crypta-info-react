@@ -1,6 +1,6 @@
 # app/reviews/schemas.py
 from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional, List, Any, Literal
+from typing import Optional, List, Literal
 from datetime import datetime
 from app.models.review import ModerationStatusEnum
 from app.auth.schemas import UserRead # Use UserRead to show author info

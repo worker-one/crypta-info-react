@@ -5,6 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { formatVolume } from '../../utils/formatters'; // Adjust path
 import { BASE_API_URL } from '../../client/api'; // Adjust path
+import { Container } from '@mui/system';
 
 const ExchangeDetails = ({ exchange }) => {
     if (!exchange) return null;
@@ -23,46 +24,47 @@ const ExchangeDetails = ({ exchange }) => {
     const showFeesCard = exchange.spot_taker_fee || exchange.spot_maker_fee || exchange.futures_taker_fee || exchange.futures_maker_fee;
 
     return (
-        <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
-            <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
-                <Grid sx={{ mr: 2 }}> {/* Logo */}
-                    <Avatar src={exchange.logo_url || '../assets/images/logo-placeholder.png'} alt={`${exchange.name} Logo`} sx={{ width: 56, height: 56 }} />
-                </Grid>
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
+                <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+                    <Grid item sx={{ mr: 2 }}> {/* Logo - Added item prop for consistency, though less critical here */}
+                        <Avatar src={exchange.logo_url || '../assets/images/logo-placeholder.png'} alt={`${exchange.name} Logo`} sx={{ width: 56, height: 56 }} />
+                    </Grid>
 
-                {/* Name */}
-                <Grid xs={10} sm md={3} sx={{ mr: 6 }}> 
-                    <Typography variant="h4">{exchange.name}</Typography>
-                </Grid>
+                    {/* Name */}
+                    <Grid item xs={10} sm md={3} sx={{ mr: 6 }}> {/* Added item prop */}
+                        <Typography variant="h4">{exchange.name}</Typography>
+                    </Grid>
 
-                <Grid xs={12} sm={6} md={3} sx={{ mr: 6 }}> {/* Rating */}
-                    <Rating value={parseFloat(exchange.overall_average_rating) || 0} precision={0.1} />
-                    <Typography variant='subtitle1' color="text.secondary" align='center' sx={{ ml: 1 }}>{exchange.total_rating_count || 0} отзывов</Typography>
+                    <Grid item xs={12} sm={6} md={3} sx={{ mr: 6 }}> {/* Rating - Added item prop */}
+                        <Rating value={parseFloat(exchange.overall_average_rating) || 0} precision={0.1} readOnly />
+                        <Typography variant='subtitle1' color="text.secondary" align='center' sx={{ ml: 1 }}>{exchange.total_rating_count || 0} отзывов</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Volume - Added item prop */}
+                        <Typography variant="h6">{formatVolume(exchange.trading_volume_24h)}</Typography>
+                        <Typography variant="subtitle1" color="text.secondary" align='center'>Объем (24ч)</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Year Founded - Added item prop */}
+                        <Typography variant="h6">{exchange.year_founded || 'N/A'}</Typography>
+                        <Typography variant="subtitle1" color="text.secondary" align='center'>Год Основания</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={2}> {/* Country - Added item prop */}
+                        <Typography variant="h6">{exchange.registration_country?.name || 'N/A'}</Typography>
+                        <Typography variant="subtitle1" color="text.secondary" align='center'>Страна</Typography>
+                    </Grid>
                 </Grid>
-                <Grid xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Volume */}
-                    <Typography variant="h6">{formatVolume(exchange.trading_volume_24h)}</Typography>
-                    <Typography variant="subtitle1" color="text.secondary" align='center'>Объем (24ч)</Typography>
-                </Grid>
-                <Grid xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Year Founded */}
-                    <Typography variant="h6">{exchange.year_founded || 'N/A'}</Typography>
-                    <Typography variant="subtitle1" color="text.secondary" align='center'>Год Основания</Typography>
-                </Grid>
-                <Grid xs={12} sm={6} md={2}> {/* Country */}
-                    <Typography variant="h6">{exchange.registration_country?.name || 'N/A'}</Typography>
-                    <Typography variant="subtitle1" color="text.secondary" align='center'>Страна</Typography>
-                </Grid>
-            </Grid>
+            </Paper>
 
             {exchange.overview && (
-                <Box sx={{ mb: 3 }}>
-                    <Typography variant="h6" gutterBottom>Описание</Typography>
+                <Box sx={{ mb: 3, mt: 2 }}>
                     <Typography variant="body1" dangerouslySetInnerHTML={{ __html: exchange.overview }} />
                 </Box>
             )}
 
-            <Grid container spacing={3}>
+            <Grid container spacing={3} alignItems="stretch" sx={{ mt: 2 }}> {/* Added alignItems="stretch" and sx={{ mt: 2 }} for spacing from above Paper */}
                 {showServicesCard && (
-                    <Grid xs={12} md={6}>
-                        <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Grid item size={6} xs={6} md={6}> {/* Added item prop */}
+                        <Paper variant="outlined" sx={{ p: 2, height: '100%' }}> {/* Added height: '100%' */}
                             <Typography variant="h6" gutterBottom>Сервисы</Typography>
                             <Box>
                                 <ServiceItem label="Копитрейдинг" status={exchange.has_copy_trading} />
@@ -77,8 +79,8 @@ const ExchangeDetails = ({ exchange }) => {
                 )}
 
                 {showFeesCard && (
-                    <Grid xs={12} md={6}>
-                        <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Grid item size={6} xs={12} md={6}> {/* Added item prop */}
+                        <Paper variant="outlined" sx={{ p: 2, height: '100%' }}> {/* Added height: '100%' */}
                             <Typography variant="h6" gutterBottom>Комиссии и бонусы</Typography>
                             <TableContainer>
                                 <Table size="small">
@@ -120,7 +122,16 @@ const ExchangeDetails = ({ exchange }) => {
                     </Grid>
                 )}
             </Grid>
-        </Paper>
+
+            {exchange.overview && (
+                <Box sx={{ mb: 3, mt: 2 }}>
+                    <Typography variant="h6" gutterBottom>Описание</Typography>
+                    <Typography variant="body1" dangerouslySetInnerHTML={{ __html: exchange.description }} />
+                </Box>
+            )}
+
+        </Container>
+    
     );
 };
 
