@@ -6,6 +6,9 @@ class ItemBase(BaseModel):
     id: int
     logo_url: str
     name: str
+    overall_average_rating: float  # Overall average rating
+    total_review_count: int  # Number of reviews with comments
+    total_rating_count: int  # Number of reviews with ratings
 
 # Schema for reading item data (e.g., in API responses)
 class ItemRead(ItemBase):
