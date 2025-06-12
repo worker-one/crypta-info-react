@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   TableSortLabel, TablePagination, CircularProgress, Typography, Box, Button, Link as MuiLink, Avatar,
-  TextField // Added TextField
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router';
 
@@ -14,26 +13,13 @@ const headCells = [
   { id: 'index', numeric: true, disablePadding: false, label: '#', sortable: false, align: 'center' },
   { id: 'cover', numeric: false, disablePadding: false, label: '', sortable: false, align: 'center' },
   { id: 'name', numeric: false, disablePadding: false, label: 'Литература', sortable: true, align: 'center' },
-  { id: 'overall_average_rating', numeric: true, disablePadding: false, label: 'Рейтинг', sortable: true, align: 'center' },
-  { id: 'total_review_count', numeric: true, disablePadding: false, label: 'Отзывы', sortable: true, align: 'center' },
-  { id: 'year', numeric: true, disablePadding: false, label: 'Год', sortable: true, align: 'center' },
-  { id: 'author', numeric: false, disablePadding: false, label: 'Автор', sortable: true, align: 'center' },
+  { id: 'overall_average_rating', numeric: true, disablePadding: false, label: 'Рейтинг', sortable: false, align: 'center' },
+  { id: 'total_review_count', numeric: true, disablePadding: false, label: 'Отзывы', sortable: false, align: 'center' },
+  { id: 'year', numeric: true, disablePadding: false, label: 'Год', sortable: false, align: 'center' },
+  { id: 'author', numeric: false, disablePadding: false, label: 'Автор', sortable: false, align: 'center' },
   { id: 'actions', numeric: false, disablePadding: false, label: '', sortable: false, align: 'center' },
 ];
 
-function formatVolume(volume) {
-  if (volume === null || volume === undefined || isNaN(parseFloat(volume))) {
-    return 'N/A';
-  }
-  const numVolume = parseFloat(volume);
-  if (numVolume >= 1000000000) {
-    return `$${Math.round(numVolume / 1000000000)} млрд`;
-  } else if (numVolume >= 1000000) {
-    return `$${Math.round(numVolume / 1000000)} млн`;
-  } else {
-    return `$${numVolume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  }
-}
 
 async function fetchBooksAPI(params) {
   const query = new URLSearchParams(params).toString();
@@ -46,7 +32,7 @@ async function fetchBooksAPI(params) {
 }
 
 
-const BooksTable = () => {
+const BooksTable = ({ searchTerm }) => { // Added searchTerm prop
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,7 +41,6 @@ const BooksTable = () => {
   const [page, setPage] = useState(0); // 0-indexed
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
   const [totalRows, setTotalRows] = useState(0);
-  const [searchTerm, setSearchTerm] = useState(''); // Added searchTerm state
   const navigate = useNavigate();
 
   const fetchBooks = useCallback(async () => {
@@ -104,11 +89,6 @@ const BooksTable = () => {
     setPage(0); // Reset to first page on rows per page change
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-    setPage(0); // Reset to first page on new search
-  };
-
   const handleRowClick = (event, id) => {
     // Prevent navigation if the click was on a link or button inside the row
     if (event.target.closest('a, button')) {
@@ -127,15 +107,6 @@ const BooksTable = () => {
 
   return (
     <Paper sx={{ width: '100%', mb: 2 }}>
-      <Box sx={{ p: 2 }}>
-        <TextField
-          fullWidth
-          label="Поиск по названию книги"
-          variant="outlined"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </Box>
       <TableContainer>
         <Table stickyHeader aria-label="books table">
           <TableHead>
@@ -146,17 +117,14 @@ const BooksTable = () => {
                   align={headCell.align || (headCell.numeric ? 'right' : 'left')}
                   padding={headCell.disablePadding ? 'none' : 'normal'}
                   sortDirection={orderBy === headCell.id ? order : false}
-                  sx={{ 
-                    ...(headCell.id === 'cover' && { width: '80px' }),
-                    ...(headCell.id === 'index' && { width: '60px' }),
-                    ...(headCell.id === 'actions' && { width: '120px' })
-                  }}
                 >
                   {headCell.sortable ? (
                     <TableSortLabel
                       active={orderBy === headCell.id}
                       direction={orderBy === headCell.id ? order : 'asc'}
                       onClick={() => handleRequestSort(headCell.id)}
+                      style={{ flexDirection: 'row', justifyContent: 'center' }}
+                      
                     >
                       {headCell.label}
                     </TableSortLabel>
@@ -211,7 +179,7 @@ const BooksTable = () => {
                     </TableCell>
 
                     {/* Title */}
-                    <TableCell>
+                    <TableCell align="center">
                       <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
                         {book.name || 'N/A'}
                       </Typography>
@@ -226,7 +194,7 @@ const BooksTable = () => {
 
                     {/* Reviews */}
                     <TableCell align="center">
-                        <MuiLink color='secondary' align='center' component={RouterLink} to={`/books/details/${book.id}`} onClick={(e) => e.stopPropagation()}>
+                        <MuiLink color='secondary' component={RouterLink} to={`/books/details/${book.id}`} onClick={(e) => e.stopPropagation()}>
                         {reviewCount}
                         </MuiLink>
                     </TableCell>
@@ -239,7 +207,7 @@ const BooksTable = () => {
                     </TableCell>
 
                     {/* Author */}
-                    <TableCell align="center">
+                    <TableCell align="center" >
                       <Typography variant="body2">
                         {book.author || 'Unknown Author'}
                       </Typography>
@@ -252,6 +220,7 @@ const BooksTable = () => {
                         to={`details/${book.id}`}
                         variant="outlined"
                         size="small"
+
                         onClick={(e) => e.stopPropagation()}
                         sx={{ minWidth: 'auto', px: 2 }}
                       >

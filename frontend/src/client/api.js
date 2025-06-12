@@ -26,6 +26,7 @@ async function fetchApi(endpoint, options = {}, requiresAuth = false) {
             ...options.headers,
         },
     };
+    console.log("Fetching URL:", url); // Debug log
 
     if (requiresAuth) {
         const token = getAccessToken(); // Use auth module's function
@@ -41,6 +42,7 @@ async function fetchApi(endpoint, options = {}, requiresAuth = false) {
 
     try {
         const response = await fetch(url, config);
+        console.log("Response status:", response.status); // Debug log
 
         if (!response.ok) {
             let errorData;
@@ -361,7 +363,7 @@ export async function adminModerateReview(reviewId, moderationPayload) {
  */
 export async function listNews(params = { skip: 0, limit: 10 }) {
     const query = new URLSearchParams(params).toString();
-    return fetchApi(`/news/?${query}`, { method: 'GET' });
+    return fetchApi(`/exchanges/news/?${query}`, { method: 'GET' });
 }
 
 /**

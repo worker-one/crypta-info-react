@@ -3,7 +3,7 @@ import { TextField, Button, Rating, Box, Typography, Alert } from '@mui/material
 import { submitItemReview } from '../../client/api'; // Adjust path as needed
 import { isLoggedIn, getUserProfileData, handleLogout as authHandleLogout } from '../../client/auth'; // Added for auth
 
-const SubmitReviewForm = ({ itemId, onItemReviewed }) => {
+const SubmitReviewForm = ({ itemId, onItemReviewed, preselectedRating }) => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [guestName, setGuestName] = useState('');
@@ -17,6 +17,13 @@ const SubmitReviewForm = ({ itemId, onItemReviewed }) => {
     useEffect(() => {
         setIsAuthenticated(isLoggedIn());
     }, []);
+
+    // Set rating from preselectedRating when it changes (e.g. after tab switch)
+    useEffect(() => {
+        if (preselectedRating && preselectedRating > 0) {
+            setRating(preselectedRating);
+        }
+    }, [preselectedRating]);
 
     // Auto-clear success message after 5 seconds
     useEffect(() => {
@@ -88,6 +95,7 @@ const SubmitReviewForm = ({ itemId, onItemReviewed }) => {
             <Rating
                 name="rating"
                 value={rating}
+                precision={0.5} // Added precision for consistency
                 onChange={(event, newValue) => {
                     setRating(newValue);
                 }}

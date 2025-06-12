@@ -1,5 +1,5 @@
 // filepath: /home/konstantin/workspace/crypta-info-react/frontend/src/components/ExchangeDetails/ExchangeInfo.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Grid, Paper, Avatar, Rating, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -7,8 +7,11 @@ import { formatVolume } from '../../utils/formatters'; // Adjust path
 import { BASE_API_URL } from '../../client/api'; // Adjust path
 import { Container } from '@mui/system';
 
-const ExchangeDetails = ({ exchange }) => {
+const ExchangeDetails = ({ exchange, onRatingClick }) => {
     if (!exchange) return null;
+
+    const [hoveredRating, setHoveredRating] = useState(-1);
+    const [selectedRating, setSelectedRating] = useState(null);
 
     const renderServiceStatus = (hasService) => (
         hasService ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />
@@ -26,32 +29,56 @@ const ExchangeDetails = ({ exchange }) => {
     return (
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
-                <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
-                    <Grid item sx={{ mr: 2 }}> {/* Logo - Added item prop for consistency, though less critical here */}
+                <Grid container spacing={2} alignItems="center" sx={{ mb: 3, flexWrap: 'nowrap', justifyContent: 'space-around' }}>
+                    <Grid item xs="auto"> {/* Logo - Changed sizing, removed sx */}
                         <Avatar src={exchange.logo_url || '../assets/images/logo-placeholder.png'} alt={`${exchange.name} Logo`} sx={{ width: 56, height: 56 }} />
                     </Grid>
 
                     {/* Name */}
-                    <Grid item xs={10} sm md={3} sx={{ mr: 6 }}> {/* Added item prop */}
-                        <Typography variant="h4">{exchange.name}</Typography>
+                    <Grid item xs="auto"> {/* Changed sizing from xs to xs="auto" */}
+                        <Typography variant="h6" noWrap>{exchange.name}</Typography>
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={3} sx={{ mr: 6 }}> {/* Rating - Added item prop */}
-                        <Rating value={parseFloat(exchange.overall_average_rating) || 0} precision={0.1} readOnly />
-                        <Typography variant='subtitle1' color="text.secondary" align='center' sx={{ ml: 1 }}>{exchange.total_rating_count || 0} отзывов</Typography>
+                    <Grid item xs="auto"> {/* Rating - Removed spacing={2} prop */}
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+                            onClick={() => {
+                                if (onRatingClick && (hoveredRating > 0 || selectedRating > 0)) {
+                                    onRatingClick(hoveredRating > 0 ? hoveredRating : selectedRating);
+                                }
+                            }}
+                        >
+                            <Rating
+                                value={hoveredRating > 0 ? hoveredRating : (selectedRating || parseFloat(exchange.overall_average_rating) || 0)}
+                                precision={1}
+                                onChange={(_, value) => setSelectedRating(value)}
+                                onChangeActive={(_, value) => setHoveredRating(value)}
+                                onMouseLeave={() => setHoveredRating(-1)}
+                            />
+                            <Typography variant='subtitle1' color="text.secondary" align='center' sx={{ mt: 1 }}>
+                                {exchange.total_rating_count || 0} отзывов
+                            </Typography>
+                        </Box>
                     </Grid>
-                    <Grid item xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Volume - Added item prop */}
-                        <Typography variant="h6">{formatVolume(exchange.trading_volume_24h)}</Typography>
-                        <Typography variant="subtitle1" color="text.secondary" align='center'>Объем (24ч)</Typography>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={2} sx={{ mr: 6 }}> {/* Year Founded - Added item prop */}
-                        <Typography variant="h6" align='center'>{exchange.year_founded || 'N/A'}</Typography>
-                        <Typography variant="subtitle1" color="text.secondary" align='center'>Год Основания</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={2}> {/* Country - Added item prop */}
-                        <Typography variant="h6">{exchange.registration_country?.name || 'N/A'}</Typography>
-                        <Typography variant="subtitle1" color="text.secondary" align='center'>Страна</Typography>
-                    </Grid>
+                    {/* Volume */}
+                    {exchange.trading_volume_24h && (
+                        <Grid item xs="auto"> {/* Changed sizing, removed sx and other breakpoints */}
+                            <Typography variant="h6">{formatVolume(exchange.trading_volume_24h)}</Typography>
+                            <Typography variant="subtitle1" color="text.secondary" align='center'>Объем (24ч)</Typography>
+                        </Grid>
+                    )}
+                    {exchange.year_founded && (
+                        <Grid item xs="auto"> {/* Changed sizing, removed sx and other breakpoints */}
+                            <Typography variant="h6" align='center'>{exchange.year_founded}</Typography>
+                            <Typography variant="subtitle1" color="text.secondary" align='center'>Год Основания</Typography>
+                        </Grid>
+                    )}
+                    {exchange.registration_country?.name && (
+                        <Grid item xs="auto"> {/* Changed sizing, removed other breakpoints */}
+                            <Typography variant="h6">{exchange.registration_country.name}</Typography>
+                            <Typography variant="subtitle1" color="text.secondary" align='center'>Страна</Typography>
+                        </Grid>
+                    )}
                 </Grid>
             </Paper>
 
@@ -105,7 +132,7 @@ const ExchangeDetails = ({ exchange }) => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                            {exchange.slug && (
+                            {/* {exchange.slug && (
                                 <Box sx={{ textAlign: 'center', mt: 2 }}>
                                     <Button 
                                         variant="contained" 
@@ -117,7 +144,7 @@ const ExchangeDetails = ({ exchange }) => {
                                         Получить бонус
                                     </Button>
                                 </Box>
-                            )}
+                            )} */}
                         </Paper>
                     </Grid>
                 )}

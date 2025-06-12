@@ -4,7 +4,7 @@ import ReviewsList from './ReviewsList'; // Adjusted path
 import ReviewForm from './ReviewForm'; // Adjusted path
 import { listItemReviews } from '../../client/api'; // Path should be correct if it was correct before
 
-const ReviewsSection = ({ itemId, itemName }) => {
+const ReviewsSection = ({ itemId, itemName, preselectedRating }) => {
     const [reviews, setReviews] = useState([]);
     const [allReviews, setAllReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +36,12 @@ const ReviewsSection = ({ itemId, itemName }) => {
     }, [fetchReviews]);
 
     useEffect(() => {
+        if (preselectedRating && preselectedRating > 0) {
+            setShowSubmitForm(true);
+        }
+    }, [preselectedRating]);
+
+    useEffect(() => {
         let sortedReviews = [...allReviews];
         if (sortBy === 'positive') {
             sortedReviews.sort((a, b) => b.rating - a.rating);
@@ -50,6 +56,7 @@ const ReviewsSection = ({ itemId, itemName }) => {
     const handleReviewSubmitted = () => {
         setShowSubmitForm(false);
         fetchReviews(); // Refresh reviews list
+        // Note: preselectedRating is not reset here, BookDetailsPage handles it on tab change.
     };
     
     const handleVote = (reviewId, isUseful) => {
@@ -75,7 +82,7 @@ const ReviewsSection = ({ itemId, itemName }) => {
             </Box>
 
             {showSubmitForm && (
-                <ReviewForm itemId={itemId} onItemReviewed={handleReviewSubmitted} />
+                <ReviewForm itemId={itemId} onItemReviewed={handleReviewSubmitted} preselectedRating={preselectedRating} />
             )}
 
             {allReviews && allReviews.length > 0 && (

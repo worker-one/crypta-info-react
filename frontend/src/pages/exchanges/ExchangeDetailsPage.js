@@ -11,6 +11,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 
 import ExchangeDetails from '../../components/Exchanges/ExchangeDetails';
 import ExchangeReviews from '../../components/Exchanges/ExchangeReviews';
+import ExchangeNews from '../../components/Exchanges/ExchangeNews'; // Placeholder for news component
 
 import { getExchangeDetails, fetchExchangeNews, fetchExchangeGuides, BASE_API_URL } from '../../client/api'; // Adjust path
 import Header from '../../components/Common/Header';
@@ -40,17 +41,22 @@ const ExchangeDetailsPage = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [newsCount, setNewsCount] = useState(0);
     const [guidesCount, setGuidesCount] = useState(0);
+    const [newsList, setNewsList] = useState([]);
+    const [reviewFormOpen, setReviewFormOpen] = useState(false);
+    const [reviewFormRating, setReviewFormRating] = useState(null);
 
     const fetchCounts = useCallback(async (exchangeId) => {
         try {
-            const newsResponse = await fetchExchangeNews(exchangeId, { limit: 1 });
+            const newsResponse = await fetchExchangeNews(exchangeId);
             setNewsCount(newsResponse.total > 0 ? newsResponse.total : 0); // Assuming 'total' is in response
+            setNewsList(newsResponse.items || []);
         } catch (e) {
             console.warn("Failed to fetch news count", e);
             setNewsCount(0);
+            setNewsList([]);
         }
         try {
-            const guidesResponse = await fetchExchangeGuides(exchangeId, { limit: 1 });
+            const guidesResponse = await fetchExchangeGuides(exchangeId);
             setGuidesCount(guidesResponse.total > 0 ? guidesResponse.total : 0); // Assuming 'total' is in response
         } catch (e) {
             console.warn("Failed to fetch guides count", e);
@@ -82,6 +88,12 @@ const ExchangeDetailsPage = () => {
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
+    };
+
+    const handleRatingClick = (rating) => {
+        setActiveTab(1); // Switch to "Отзывы" tab
+        setReviewFormOpen(true);
+        setReviewFormRating(rating);
     };
 
     if (isLoading) return <Container sx={{ textAlign: 'center', mt: 5 }}><CircularProgress size={60} /></Container>;
@@ -130,18 +142,28 @@ const ExchangeDetailsPage = () => {
                 </Box>
 
                 <TabPanel value={activeTab} index={0}>
-                    <ExchangeDetails exchange={exchange} />
-                    <ExchangeReviews exchangeId={exchange.id} exchangeName={exchange.name} />
+                    <ExchangeDetails exchange={exchange} onRatingClick={handleRatingClick} />
+                    <ExchangeReviews
+                        exchangeId={exchange.id}
+                        exchangeName={exchange.name}
+                        showSubmitForm={reviewFormOpen}
+                        preselectedRating={reviewFormRating}
+                        onCloseSubmitForm={() => setReviewFormOpen(false)}
+                    />
                 </TabPanel>
                 <TabPanel value={activeTab} index={1}>
-                    <ExchangeReviews exchangeId={exchange.id} exchangeName={exchange.name} />
+                    <ExchangeReviews
+                        exchangeId={exchange.id}
+                        exchangeName={exchange.name}
+                        showSubmitForm={reviewFormOpen}
+                        preselectedRating={reviewFormRating}
+                        onCloseSubmitForm={() => setReviewFormOpen(false)}
+                    />
                 </TabPanel>
                 {newsCount > 0 && (
                     <TabPanel value={activeTab} index={2}>
                         <Typography variant="h5">Новости биржи {exchange.name}</Typography>
-                        {/* Placeholder: Implement ExchangeNewsList component here */}
-                        <Typography>Контент новостей будет здесь.</Typography>
-                        {/* <ExchangeNewsList exchangeId={exchange.id} /> */}
+                        <ExchangeNews newsList={newsList} exchange={exchange} />
                     </TabPanel>
                 )}
                 {guidesCount > 0 && (

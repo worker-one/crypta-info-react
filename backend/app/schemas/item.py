@@ -1,5 +1,7 @@
 # app/schemas/item.py
 from pydantic import BaseModel
+from typing import List, Optional # Added Optional and List
+from .tag import TagRead # Import TagRead schema
 
 # Base schema for common attributes
 class ItemBase(BaseModel):
@@ -22,20 +24,22 @@ class ItemRead(ItemBase):
     overall_average_rating: float  # Overall average rating
     total_review_count: int  # Number of reviews with comments
     total_rating_count: int  # Number of reviews with ratings
+    tags: List[TagRead] = [] # Add tags field
 
     class Config:
-        orm_mode = True # Enable ORM mode for compatibility with SQLAlchemy models
+        from_attributes = True # Updated from orm_mode
 
 class ItemReadBrief(ItemBase):
     id: int
     slug: str
-    logo_url: str
-    overall_average_rating: float  # Overall average rating
-    total_review_count: int  # Number of reviews with comments
-    total_rating_count: int  # Number of reviews with ratings
+    logo_url: str # Kept as non-optional based on original
+    overall_average_rating: float
+    total_review_count: int
+    total_rating_count: int
+    tags: List[TagRead] = [] # Add tags field
 
     class Config:
-        orm_mode = True # Enable ORM mode for compatibility with SQLAlchemy models
+        from_attributes = True # Updated from orm_mode
 
 # Schema for creating an item (if needed later)
 # class ItemCreate(ItemBase):

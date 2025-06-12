@@ -1,6 +1,6 @@
 // filepath: /home/konstantin/workspace/crypta-info-react/frontend/src/components/Books/BookDetails.js
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router';
+import { useParams } from 'react-router';
 import { 
     Box, 
     Typography, 
@@ -8,76 +8,52 @@ import {
     Paper, 
     Avatar, 
     Rating, 
-    Button, 
     Chip,
     CircularProgress,
     Alert,
-    Tabs,
-    Tab,
     Divider
 } from '@mui/material';
-import { getBookDetails, listItemReviews } from '../../client/api';
-import ReviewsList from '../Reviews/ReviewsList';
+import { getBookDetails } from '../../client/api';
+import { Container } from '@mui/system';
 
 
-const BookDetails = () => {
-    const { id } = useParams();
-    const [searchParams] = useSearchParams();
-    const bookId = id || searchParams.get('id');
+const BookDetails = ({ book: bookFromProps, onRatingSelect }) => {
+    const { id: idFromParams } = useParams();
 
-    const [book, setBook] = useState(null);
-    const [reviews, setReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [internalBook, setInternalBook] = useState(null);
+    const [loading, setLoading] = useState(!bookFromProps); // Initialize loading based on prop
     const [error, setError] = useState(null);
-    const [reviewsError, setReviewsError] = useState(null);
-    const [activeTab, setActiveTab] = useState(0);
-    const [sortBy, setSortBy] = useState('created_at');
-    const [sortDirection, setSortDirection] = useState('desc');
+
+    const book = bookFromProps || internalBook; // Prioritize prop
 
     useEffect(() => {
-        if (bookId) {
-            loadBookDetails();
-        } else {
+        if (bookFromProps) {
+            // If bookFromProps is provided, use it.
+            setLoading(false);
+            return; 
+        }
+
+        // Fetch only if bookFromProps is not available and idFromParams exists
+        if (idFromParams) {
+            const fetchBookDetails = async () => { // Renamed to avoid potential scope issues
+                try {
+                    setLoading(true);
+                    setError(null);
+                    const bookData = await getBookDetails(idFromParams);
+                    setInternalBook(bookData);
+                } catch (err) {
+                    console.error('Error fetching book details:', err);
+                    setError(err.message || 'Failed to load book details. Please try again later.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchBookDetails();
+        } else if (!bookFromProps) { // Ensure error is set if no id and no prop
             setError('No book identifier provided.');
             setLoading(false);
         }
-    }, [bookId]);
-
-    useEffect(() => {
-        if (book?.id && activeTab === 1) {
-            loadReviews();
-        }
-    }, [book?.id, activeTab, sortBy, sortDirection]);
-
-    const loadBookDetails = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            
-            const bookData = await getBookDetails(bookId);
-            setBook(bookData);
-            
-            // Update page title
-            if (bookData?.name) {
-                document.title = `${bookData.name} - Crypta.Info`;
-            }
-        } catch (err) {
-            console.error('Error fetching book details:', err);
-            setError(err.message || 'Failed to load book details. Please try again later.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleTabChange = (event, newValue) => {
-        setActiveTab(newValue);
-    };
-
-    const handleSortChange = (newSortBy, newDirection) => {
-        setSortBy(newSortBy);
-        setSortDirection(newDirection);
-    };
+    }, [idFromParams, bookFromProps]);
 
     if (loading) {
         return (
@@ -98,6 +74,7 @@ const BookDetails = () => {
     if (!book) return null;
 
     const renderBookOverview = () => (
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
             <Grid container columns={5} alignItems="flex-start" sx={{ mb: 3 }}>
                 {/* Book Cover Column */}
@@ -125,9 +102,14 @@ const BookDetails = () => {
                             <Grid item xs={6} sm={3}>
                                 <Box>
                                     <Rating 
+                                        name="book-rating-interactive" // Added name for accessibility
                                         value={parseFloat(book.overall_average_rating) || 0} 
-                                        precision={0.1} 
-                                        readOnly 
+                                        precision={0.5} // Changed precision for selection
+                                        onChange={(event, newValue) => {
+                                            if (newValue !== null && onRatingSelect) {
+                                                onRatingSelect(newValue);
+                                            }
+                                        }}
                                     />
                                     <Typography variant="subtitle2" color="text.secondary" align='center'>
                                         {book.total_rating_count || 0} отзывов
@@ -166,23 +148,23 @@ const BookDetails = () => {
                                 </Box>
                             </Box>
                         )}
-
-                        {/* Description */}
-                        {book.overview && (
-                            <Box>
-                                <Typography variant="h6" gutterBottom>
-                                    Описание
-                                </Typography>
-                                <Typography 
-                                    variant="body1" 
-                                    dangerouslySetInnerHTML={{ __html: book.overview }} 
-                                />
-                            </Box>
-                        )}
                     </Box>
                 </Grid>
             </Grid>
         </Paper>
+        {/* Description */}
+            {book.overview && (
+                <Box sx={{ mt: 3, p: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                        Описание
+                    </Typography>
+                    <Typography 
+                        variant="body1" 
+                        dangerouslySetInnerHTML={{ __html: book.overview }} 
+                    />
+                </Box>
+            )}
+        </Container>
     );
 
     return (

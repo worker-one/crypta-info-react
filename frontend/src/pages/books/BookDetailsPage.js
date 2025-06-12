@@ -36,6 +36,7 @@ const BookDetailsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState(0);
+    const [preselectedRating, setPreselectedRating] = useState(0); // New state for preselected rating
 
     useEffect(() => {
         if (!id) {
@@ -60,6 +61,14 @@ const BookDetailsPage = () => {
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
+        if (newValue !== 1) { // If navigating away from reviews tab or to a different tab
+            setPreselectedRating(0); // Reset preselected rating
+        }
+    };
+
+    const handleRatingClick = (rating) => {
+        setPreselectedRating(rating);
+        setActiveTab(1); // Switch to Reviews Tab
     };
 
     if (isLoading) return <Container sx={{ textAlign: 'center', mt: 5 }}><CircularProgress size={60} /></Container>;
@@ -91,7 +100,10 @@ const BookDetailsPage = () => {
                         <Button 
                             variant="contained" 
                             startIcon={<ShoppingCartIcon />}
-                            onClick={() => setActiveTab(2)}
+                            onClick={() => {
+                                setActiveTab(2);
+                                setPreselectedRating(0); // Reset preselected rating
+                            }}
                             color="secondary"
                             sx={{ ml: 'auto', color: 'white' }}
                         >
@@ -101,11 +113,11 @@ const BookDetailsPage = () => {
                 </Box>
 
                 <TabPanel value={activeTab} index={0}>
-                    <BookDetails book={book} />
+                    <BookDetails book={book} onRatingSelect={handleRatingClick} />
                     <ReviewsSection itemId={book.id} itemName={book.name} />
                 </TabPanel>
                 <TabPanel value={activeTab} index={1}>
-                    <ReviewsSection itemId={book.id} itemName={book.name} />
+                    <ReviewsSection itemId={book.id} itemName={book.name} preselectedRating={preselectedRating} />
                 </TabPanel>
                 <TabPanel value={activeTab} index={2}>
                     <Typography variant="h5" gutterBottom>Где купить "{book.name}"</Typography>

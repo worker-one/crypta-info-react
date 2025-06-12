@@ -14,6 +14,7 @@ from app.admin.router import router as admin_router
 from app.common.router import router as common_router # Import the new router
 from app.guides.router import router as guides_router # Import the guides router
 from app.item.router import router as item_router # Import the item router
+from app.tag.router import router as tag_router
 
 # Create FastAPI app instance
 app = FastAPI(
@@ -51,6 +52,7 @@ api_router_v1.include_router(static_pages_router) # Static pages router
 api_router_v1.include_router(guides_router) # Include guides router
 api_router_v1.include_router(common_router) # Include the common data router
 api_router_v1.include_router(item_router) # Include the item router
+api_router_v1.include_router(tag_router) # Include the tag router
 
 app.include_router(api_router_v1, prefix=settings.API_V1_STR)
 

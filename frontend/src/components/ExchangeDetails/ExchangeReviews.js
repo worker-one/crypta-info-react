@@ -96,36 +96,67 @@ const ExchangeReviews = ({
     return (
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Box sx={{ mt: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h5">Отзывы о {exchangeName}</Typography>
-                    <Button variant="contained" onClick={() => setShowSubmitForm(!showSubmitForm)}>
-                        {showSubmitForm ? 'Отменить' : 'Оставить отзыв'}
-                    </Button>
-                </Box>
+                {allReviews && allReviews.length > 0 ? (
+                    // Non-empty mode: keep as is
+                    <>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography variant="h5">Отзывы о {exchangeName}</Typography>
+                            <Button variant="contained" onClick={() => setShowSubmitForm(!showSubmitForm)}>
+                                {showSubmitForm ? 'Отменить' : 'Оставить отзыв'}
+                            </Button>
+                        </Box>
 
-                {showSubmitForm && (
-                    <ReviewForm
-                        itemId={exchangeId}
-                        onItemReviewed={handleReviewSubmitted}
-                        onCancel={handleCloseForm}
-                        preselectedRating={preselectedRating}
-                    />
-                )}
+                        {showSubmitForm && (
+                            <ReviewForm
+                                itemId={exchangeId}
+                                onItemReviewed={handleReviewSubmitted}
+                                onCancel={handleCloseForm}
+                                preselectedRating={preselectedRating}
+                            />
+                        )}
 
-                {allReviews && allReviews.length > 0 && (
-                    <Box sx={{ my: 2 }}>
-                        <ButtonGroup variant="outlined" aria-label="outlined button group">
-                            <Button onClick={() => setSortBy('date')} disabled={sortBy === 'date'}>новые</Button>
-                            <Button color="success" onClick={() => setSortBy('positive')} disabled={sortBy === 'positive'}>хорошие</Button>
-                            <Button color="error" onClick={() => setSortBy('negative')} disabled={sortBy === 'negative'}>плохие</Button>
-                        </ButtonGroup>
+                        <Box sx={{ my: 2 }}>
+                            <ButtonGroup variant="outlined" aria-label="outlined button group">
+                                <Button onClick={() => setSortBy('date')} disabled={sortBy === 'date'}>новые</Button>
+                                <Button color="success" onClick={() => setSortBy('positive')} disabled={sortBy === 'positive'}>хорошие</Button>
+                                <Button color="error" onClick={() => setSortBy('negative')} disabled={sortBy === 'negative'}>плохие</Button>
+                            </ButtonGroup>
+                        </Box>
+
+                        {isLoading && <CircularProgress />}
+                        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+                        {!isLoading && !error && (
+                            <ReviewsList reviews={reviews} isLoading={false} error={null} onVote={handleVote} />
+                        )}
+                    </>
+                ) : (
+                    // Empty mode: center the button
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 200, justifyContent: 'center' }}>
+                        <Typography variant="h5" sx={{ mb: 2 }}>Отзывы о {exchangeName}</Typography>
+                        <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+                            Пока нет отзывов. Станьте первым, кто оставит отзыв!
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            onClick={() => setShowSubmitForm(!showSubmitForm)}
+                            sx={{ mb: showSubmitForm ? 3 : 0 }}
+                        >
+                            {showSubmitForm ? 'Отменить' : 'Оставить отзыв'}
+                        </Button>
+                        {showSubmitForm && (
+                            <Box sx={{ width: '100%', maxWidth: 600, mt: 3 }}>
+                                <ReviewForm
+                                    itemId={exchangeId}
+                                    onItemReviewed={handleReviewSubmitted}
+                                    onCancel={handleCloseForm}
+                                    preselectedRating={preselectedRating}
+                                />
+                            </Box>
+                        )}
+                        {isLoading && <CircularProgress sx={{ mt: 2 }} />}
+                        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
                     </Box>
-                )}
-
-                {isLoading && <CircularProgress />}
-                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-                {!isLoading && !error && (
-                    <ReviewsList reviews={reviews} isLoading={false} error={null} onVote={handleVote} />
                 )}
             </Box>
         </Container>

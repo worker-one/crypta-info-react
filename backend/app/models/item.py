@@ -8,6 +8,8 @@ import enum
 
 # Import Base from the central location
 from .base import Base
+# Import the association table and Tag model for the relationship
+from .tag import item_tags_association, Tag # Added Tag for type hinting if needed, association table is key
 
 # Enum for Item types (used for polymorphism)
 class ItemTypeEnum(str, enum.Enum):
@@ -53,6 +55,13 @@ class Item(Base):
         back_populates="item",
         # Consider cascade options carefully. Deleting an item might delete its reviews.
         cascade="all, delete-orphan"
+    )
+
+    # Relationship to tags (many-to-many)
+    tags = relationship(
+        "Tag",
+        secondary=item_tags_association,
+        back_populates="items"
     )
 
     # --- Polymorphism Setup ---

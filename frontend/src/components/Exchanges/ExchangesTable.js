@@ -2,23 +2,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   TableSortLabel, TablePagination, CircularProgress, Typography, Box, Button, Link as MuiLink, Avatar,
-  TextField // Added TextField
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router';
+import { flex } from '@mui/system';
 
 // TODO: Move BASE_URL_API to a config.js file and import it
 const BASE_URL_API = 'http://176.124.219.116:8300/api/v1';
 const DEFAULT_ROWS_PER_PAGE = 20;
 
 const headCells = [
-  { id: 'index', numeric: true, disablePadding: false, label: '#', sortable: false },
+  { id: 'index', numeric: true, disablePadding: false, label: '#', sortable: false, align: 'center' }, // Added align: 'center'
   { id: 'name', numeric: false, disablePadding: false, label: 'Биржа', sortable: true, align: 'center' },
   { id: 'overall_average_rating', numeric: true, disablePadding: false, label: 'Рейтинг', sortable: true, align: 'center' },
   { id: 'total_review_count', numeric: true, disablePadding: false, label: 'Отзывы', sortable: true, align: 'center' },
   { id: 'trading_volume_24h', numeric: true, disablePadding: false, label: 'Объем (24ч)', sortable: true, align: 'center' },
-  { id: 'has_p2p', numeric: false, disablePadding: false, label: 'P2P', sortable: true, align: 'center' },
-  { id: 'has_kyc', numeric: false, disablePadding: false, label: 'KYC', sortable: true, align: 'center' },
-  { id: 'website', numeric: false, disablePadding: false, label: 'Сайт', sortable: false, align: 'center' },
+  { id: 'details', numeric: false, disablePadding: false, label: ' ', sortable: false, align: 'center' },
 ];
 
 function formatVolume(volume) {
@@ -46,16 +44,15 @@ async function fetchExchangesAPI(params) {
 }
 
 
-const ExchangesTable = () => {
+const ExchangesTable = ({ searchTerm }) => { // Added searchTerm prop
   const [exchanges, setExchanges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [order, setOrder] = useState('desc');
-  const [orderBy, setOrderBy] = useState('overall_average_rating');
+  const [orderBy, setOrderBy] = useState(null);
   const [page, setPage] = useState(0); // 0-indexed
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
   const [totalRows, setTotalRows] = useState(0);
-  const [searchTerm, setSearchTerm] = useState(''); // Added searchTerm state
   const navigate = useNavigate();
 
   const fetchExchanges = useCallback(async () => {
@@ -104,11 +101,6 @@ const ExchangesTable = () => {
     setPage(0); // Reset to first page on rows per page change
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-    setPage(0); // Reset to first page on new search
-  };
-
   const handleRowClick = (event, slug) => {
     // Prevent navigation if the click was on a link or button inside the row
     if (event.target.closest('a, button')) {
@@ -127,15 +119,6 @@ const ExchangesTable = () => {
 
   return (
     <Paper sx={{ width: '100%', mb: 2 }}>
-      <Box sx={{ p: 2 }} display="flex" justifyContent="space-between" alignItems="center">
-        <TextField
-          fullWidth
-          label="Поиск по названию биржи"
-          variant="outlined"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </Box>
       <TableContainer>
         <Table stickyHeader aria-label="exchanges table">
           <TableHead>
@@ -146,18 +129,25 @@ const ExchangesTable = () => {
                   align={headCell.align || (headCell.numeric ? 'right' : 'left')}
                   padding={headCell.disablePadding ? 'none' : 'normal'}
                   sortDirection={orderBy === headCell.id ? order : false}
-                  style={{ textAlign: headCell.id === 'index' || headCell.id === 'website' ? 'center' : headCell.numeric ? 'right' : 'left' }}
                 >
                   {headCell.sortable ? (
                     <TableSortLabel
                       active={orderBy === headCell.id}
                       direction={orderBy === headCell.id ? order : 'asc'}
                       onClick={() => handleRequestSort(headCell.id)}
+                      style={flex({
+                        flexDirection: 'row',
+                        justifyContent: headCell.align === 'center' ? 'center' : headCell.align === 'right' ? 'flex-end' : 'flex-start',
+                      })}
                     >
-                      {headCell.label}
+                      <Box sx={{ position: 'relative', left: '10px' /* Adjust this value e.g., '2px' or '-2px' */ }}>
+                        {headCell.label}
+                      </Box>
                     </TableSortLabel>
                   ) : (
-                    headCell.label
+                    <Box sx={{ position: 'relative', left: '0px', display: 'inline-block' /* Adjust this value */ }}>
+                      {headCell.label}
+                    </Box>
                   )}
                 </TableCell>
               ))}
@@ -176,8 +166,6 @@ const ExchangesTable = () => {
                 const formattedRating = isNaN(ratingValue) ? 'N/A' : ratingValue.toFixed(1);
                 const reviewCount = exchange.total_review_count?.toLocaleString() ?? 'N/A';
                 const formattedVolume = formatVolume(exchange.trading_volume_24h);
-                const p2pIconSrc = exchange.has_p2p ? "/assets/green-check.png" : "/assets/red-cross.png";
-                const kycIconSrc = exchange.has_kyc ? "/assets/green-check.png" : "/assets/red-cross.png";
 
                 return (
                   <TableRow
@@ -203,29 +191,32 @@ const ExchangesTable = () => {
                         ★ {formattedRating}
                       </Box>
                     </TableCell>
+
+                    {/* Reviews */}
                     <TableCell align='center'>
                       <MuiLink color='secondary' component={RouterLink} to={`/exchanges/details/${exchange.slug}`} onClick={(e) => e.stopPropagation()}>
                         {reviewCount}
                       </MuiLink>
                     </TableCell>
+                    
                     <TableCell align='center'>{formattedVolume}</TableCell>
-                    <TableCell>
+                    {/* <TableCell align='center'>
                       <img src={p2pIconSrc} alt={exchange.has_p2p ? "Yes" : "No"} width="20" height="20" />
                     </TableCell>
-                    <TableCell>
+                    <TableCell align='center'>
                       <img src={kycIconSrc} alt={exchange.has_kyc ? "Yes" : "No"} width="20" height="20" />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <Button
                         variant="contained"
                         size="small"
                         color="#636262"
-                        href={`${BASE_URL_API}/exchanges/go/${exchange.slug}`}
+                        href={`${BASE_URL_API}/${exchange.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Сайт
+                        Обзор
                       </Button>
                     </TableCell>
                   </TableRow>

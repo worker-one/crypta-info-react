@@ -16,6 +16,15 @@ from .review import (
 from .news import NewsItem
 from .guide import GuideItem
 from .static_page import StaticPage
+from .item import Item, ItemTypeEnum
+from .tag import Tag, item_tags_association
 
 # You can optionally define __all__ if needed
-# __all__ = [...]
+__all__ = [
+    "Base",
+    "Item",
+    "ItemTypeEnum",
+    "Tag",
+    "item_tags_association",
+    # Add other model names to __all__
+]
