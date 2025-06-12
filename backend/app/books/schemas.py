@@ -5,22 +5,14 @@ from datetime import datetime
 from decimal import Decimal
 
 from app.schemas.item import ItemReadBrief, ItemRead, ItemBase
+# Import TagRead for nested tag representation
+from app.schemas.tag import TagRead
 
-# --- Topic Schema ---
-class TopicRead(BaseModel):
-    id: int
-    name: str
-    slug: str
-    description: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 # --- Book Schemas ---
 class BookBase(ItemBase):
 
     # Book-specific fields
-    # topic: Optional[str] = Field(None, max_length=255, index=True) # Replaced by M2M topics
     year: Optional[int] = Field(None, ge=1500, le=datetime.now().year)
     number: Optional[str] = Field(None, max_length=50, index=True, description="ISBN, ASIN, etc.")
     pages: Optional[int] = Field(None, ge=1, description="Number of pages")
@@ -29,7 +21,7 @@ class BookBase(ItemBase):
 
 class BookCreate(BookBase):
     # IDs for M2M relationships
-    topic_ids: List[int] = []
+    tags_ids: List[int] = []
     pass
 
 class BookUpdate(BookBase):
@@ -42,12 +34,11 @@ class BookUpdate(BookBase):
     number: Optional[str] = Field(None, max_length=50)
 
     # Allow updating M2M relationships
-    topic_ids: Optional[List[int]] = None
+    tags_ids: Optional[List[int]] = None
     pass
 
 # Schema for brief list view (inherits from ItemReadBrief essentially)
 class BookReadBrief(ItemReadBrief):
-
     # Book-specific fields
     year: Optional[int] = None
     author: Optional[str] = None
@@ -60,7 +51,6 @@ class BookReadBrief(ItemReadBrief):
 class BookRead(ItemRead):
     
     # Book-specific fields
-    # topic: Optional[str] = Field(None, max_length=255, index=True) # Replaced by M2M topics
     year: Optional[int] = Field(None, ge=1500, le=datetime.now().year)
     number: Optional[str] = Field(None, max_length=50, index=True, description="ISBN, ASIN, etc.")
     pages: Optional[int] = Field(None, ge=1, description="Number of pages")
@@ -68,7 +58,7 @@ class BookRead(ItemRead):
     publisher: Optional[str] = Field(None, max_length=255, description="Publisher of the book")
     
     # Nested related data
-    topics: List[TopicRead] = []
+    tags: List[TagRead] = []
     # reviews: List[ReviewRead] = [] # Assuming ReviewRead exists elsewhere
 
     class Config:
@@ -77,7 +67,7 @@ class BookRead(ItemRead):
 # --- Filtering and Sorting ---
 class BookFilterParams(BaseModel):
     name: Optional[str] = None # Filter by title
-    topic_id: Optional[int] = None # Filter by a specific topic ID
+    tag_id: Optional[int] = None # Filter by a specific tag ID
     min_year: Optional[int] = None
     max_year: Optional[int] = None
     min_total_review_count: Optional[int] = None

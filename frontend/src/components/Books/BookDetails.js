@@ -130,17 +130,17 @@ const BookDetails = ({ book: bookFromProps, onRatingSelect }) => {
                             </Grid>
                         </Grid>
 
-                        {/* Topics */}
-                        {book.topics && book.topics.length > 0 && (
+                        {/* Tags */}
+                        {book.tags && book.tags.length > 0 && (
                             <Box>
                                 <Typography variant="subtitle1" gutterBottom>
-                                    Тематика:
+                                    Теги:
                                 </Typography>
                                 <Box display="flex" flexWrap="wrap" gap={1}>
-                                    {book.topics.map((topic, index) => (
+                                    {book.tags.map((tag, index) => (
                                         <Chip
                                             key={index}
-                                            label={topic.name}
+                                            label={tag.name}
                                             variant="outlined"
                                             size="small"
                                         />

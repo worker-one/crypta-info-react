@@ -402,23 +402,39 @@ export async function getNewsItem(newsId) {
 
 /**
  * Fetches a list of books.
- * @param {object} params - Filtering, sorting, and pagination parameters (e.g., { skip: 0, limit: 10, name, topic_id, field, direction })
+ * @param {object} params - Filtering, sorting, and pagination parameters (e.g., { skip: 0, limit: 10, name, tag_id, field, direction })
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
 export async function listBooks(params = { skip: 0, limit: 10 }) {
-    const cleanedParams = Object.entries(params).reduce((acc, [key, value]) => {
-        if (value !== null && value !== undefined && value !== '') {
-            acc[key] = value;
+    // Clean up empty parameters and convert page to skip
+    const cleanedParams = {};
+    let skip = params.skip !== undefined ? params.skip : 0; // Default skip
+    const limit = params.limit !== undefined ? params.limit : 10; // Default limit
+
+    if (params.page !== undefined && params.page !== null) {
+        const page = parseInt(params.page, 10);
+        if (page > 0) {
+            skip = (page - 1) * limit;
         }
-        return acc;
-    }, {});
+    }
+
+    for (const [key, value] of Object.entries(params)) {
+        if (value !== null && value !== undefined && value !== '' && key !== 'page') {
+            cleanedParams[key] = value;
+        }
+    }
+    // Ensure skip and limit are part of the cleanedParams for the query string
+    cleanedParams.skip = skip;
+    cleanedParams.limit = limit;
+
     const query = new URLSearchParams(cleanedParams).toString();
+    console.log("Fetching books with query:", query); // Log the actual query
     return fetchApi(`/books/?${query}`, { method: 'GET' });
 }
 
 /**
  * Fetches a paginated, filtered, and sorted list of books.
- * @param {object} params - Filtering, sorting, and pagination parameters (e.g., { skip, limit, name, topic_id, field, direction })
+ * @param {object} params - Filtering, sorting, and pagination parameters (e.g., { skip, limit, name, tag_id, field, direction })
  * @returns {Promise<object>} - The paginated response object { items: [...], total, skip, limit }
  */
 export async function fetchBooks(params = { skip: 0, limit: 10 }) {
@@ -435,11 +451,11 @@ export async function getBookDetails(slug) {
 }
 
 /**
- * Fetches a list of all book topics.
- * @returns {Promise<Array<object>>} - Array of topic objects { id: number, name: string }
+ * Fetches a list of all book tags.
+ * @returns {Promise<Array<object>>} - Array of tag objects { id: number, name: string }
  */
-export async function fetchBookTopics() {
-    return fetchApi('/books/topics/', { method: 'GET' });
+export async function fetchBookTags() {
+    return fetchApi('/tags/', { method: 'GET' });
 }
 
 // --- Инструкции API Functions ---

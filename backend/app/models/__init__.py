@@ -8,7 +8,7 @@ from .exchange import (
     exchange_fiat_support_table, news_item_exchanges_table
 )
 from .books import (
-    Book, Topic, book_topics_table,
+    Book,
 )
 from .review import (
     Review, ReviewScreenshot, ReviewUsefulnessVote
@@ -25,6 +25,5 @@ __all__ = [
     "Item",
     "ItemTypeEnum",
     "Tag",
-    "item_tags_association",
-    # Add other model names to __all__
+    "item_tags_association"
 ]
