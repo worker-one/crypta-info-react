@@ -5,7 +5,9 @@ from datetime import date, datetime
 from decimal import Decimal
 import enum  # Required for KycTypeEnum
 
+from app.schemas.item import ItemReadBrief, ItemRead, ItemBase
 from app.schemas.common import CountryRead, LanguageRead, FiatCurrencyRead
+from app.schemas.tag import TagRead
 
 # Define KycTypeEnum for Pydantic, matching the model's enum
 class KycTypeEnum(str, enum.Enum):
@@ -37,13 +39,7 @@ class ExchangeSocialLinkRead(BaseModel):
 
 
 # --- Exchange Schemas ---
-class ExchangeBase(BaseModel):
-    name: str = Field(..., min_length=2, max_length=255)
-    slug: str = Field(..., min_length=2, max_length=255)  # Basic slug pattern
-    description: Optional[str] = None
-    overview: Optional[str] = None
-    logo_url: Optional[str] = None
-    website_url: Optional[str] = None
+class ExchangeBase(ItemBase):
     referral_link: Optional[str] = None
     year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
     reviews_page_content: Optional[str] = None  # Placeholder for reviews page content
@@ -104,36 +100,23 @@ class ExchangeUpdate(ExchangeBase):
     pass
 
 # Schema for brief list view
-class ExchangeReadBrief(BaseModel):
-    id: int
-    name: str
-    slug: str
-    logo_url: Optional[HttpUrl] = None
-    overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    total_review_count: int  # Number of reviews with comments
-    total_rating_count: int  # Number of reviews with ratings
+class ExchangeReadBrief(ItemReadBrief):
     trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
     year_founded: Optional[int] = None
     registration_country: Optional[CountryRead] = None  # Only basic info
-
-    has_kyc: Optional[bool] = None
-    has_p2p: Optional[bool] = None
-    has_copy_trading: Optional[bool] = None
-    has_staking: Optional[bool] = None
-    has_futures: Optional[bool] = None
-    has_spot_trading: Optional[bool] = None
-    has_demo_trading: Optional[bool] = None
 
     spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
     futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
     spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
     futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
 
+    tags: List[TagRead] = []
+    
     class Config:
         from_attributes = True
 
 # Schema for detailed view
-class ExchangeRead(ExchangeBase):
+class ExchangeRead(ItemRead):
     id: int
     overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
     total_review_count: int  # Number of reviews with comments
@@ -158,6 +141,8 @@ class ExchangeRead(ExchangeBase):
     has_spot_trading: Optional[bool] = None
     has_demo_trading: Optional[bool] = None
 
+    tags: List[TagRead] = []
+    
     class Config:
         from_attributes = True
 

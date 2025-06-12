@@ -22,7 +22,8 @@ class ExchangeService:
             selectinload(exchange_models.Exchange.languages),
             selectinload(exchange_models.Exchange.supported_fiat_currencies),
             selectinload(exchange_models.Exchange.licenses).selectinload(exchange_models.License.jurisdiction_country),
-            selectinload(exchange_models.Exchange.social_links)
+            selectinload(exchange_models.Exchange.social_links),
+            selectinload(exchange_models.Exchange.tags)
         ).filter(exchange_models.Exchange.slug == slug)
         result = await db.execute(query)
         return result.scalar_one_or_none()
@@ -40,9 +41,10 @@ class ExchangeService:
         pagination: PaginationParams,
     ) -> Tuple[List[exchange_models.Exchange], int]:
 
+        # Base query with eager loading for list view
         query = select(exchange_models.Exchange).options(
-            # Eager load only necessary fields for list view
-            selectinload(exchange_models.Exchange.registration_country)
+            selectinload(exchange_models.Exchange.registration_country),
+            selectinload(exchange_models.Exchange.tags)
         )
 
         # --- Filtering ---
@@ -66,7 +68,9 @@ class ExchangeService:
         if filters.max_total_rating_count is not None:
             filter_conditions.append(exchange_models.Exchange.total_rating_count <= filters.max_total_rating_count)
 
-
+        # Build separate queries for filtering with joins
+        joins_applied = False
+        
         # Filtering by relationships requires joins or subqueries
         if filters.country_id:
             # Example: Filter if registered OR available in country_id
@@ -79,28 +83,60 @@ class ExchangeService:
                     exchange_models.exchange_availability_table.c.country_id == filters.country_id
                 )
             )
+            joins_applied = True
 
         if filters.has_license_in_country_id:
              query = query.join(exchange_models.License) # Inner join ensures only exchanges with licenses
              filter_conditions.append(exchange_models.License.jurisdiction_country_id == filters.has_license_in_country_id)
+             joins_applied = True
 
         if filters.supports_fiat_id:
             query = query.join(exchange_models.exchange_fiat_support_table)
             filter_conditions.append(exchange_models.exchange_fiat_support_table.c.fiat_currency_id == filters.supports_fiat_id)
+            joins_applied = True
 
         if filters.supports_language_id:
             query = query.join(exchange_models.exchange_languages_table)
             filter_conditions.append(exchange_models.exchange_languages_table.c.language_id == filters.supports_language_id)
+            joins_applied = True
 
         if filter_conditions:
-             query = query.where(and_(*filter_conditions)).distinct() # Use distinct because of joins
+             if joins_applied:
+                 query = query.where(and_(*filter_conditions)).distinct() # Use distinct because of joins
+             else:
+                 query = query.where(and_(*filter_conditions))
 
-
-        # --- Count Total ---
-        count_query = select(func.count(exchange_models.Exchange.id))
-        if filter_conditions: # Apply same filters to count query
-            # Reconstruct joins/filters for count or use the filtered query as subquery
-             count_query = count_query.select_from(query.subquery()) # Simpler approach
+        # --- Count Total (Fixed approach) ---
+        # Create a separate count query with the same filters
+        count_query = select(func.count(func.distinct(exchange_models.Exchange.id)))
+        
+        # Apply the same joins and filters to count query
+        if filters.country_id:
+            count_query = count_query.select_from(
+                exchange_models.Exchange
+                .outerjoin(exchange_models.exchange_availability_table)
+                .outerjoin(common_models.Country, exchange_models.exchange_availability_table.c.country_id == common_models.Country.id)
+            )
+        else:
+            count_query = count_query.select_from(exchange_models.Exchange)
+            
+        if filters.has_license_in_country_id:
+            count_query = count_query.select_from(
+                exchange_models.Exchange.join(exchange_models.License)
+            )
+            
+        if filters.supports_fiat_id:
+            count_query = count_query.select_from(
+                exchange_models.Exchange.join(exchange_models.exchange_fiat_support_table)
+            )
+            
+        if filters.supports_language_id:
+            count_query = count_query.select_from(
+                exchange_models.Exchange.join(exchange_models.exchange_languages_table)
+            )
+            
+        if filter_conditions:
+            count_query = count_query.where(and_(*filter_conditions))
 
         total_result = await db.execute(count_query)
         total = total_result.scalar_one()
