@@ -117,21 +117,9 @@ class ExchangeReadBrief(ItemReadBrief):
 
 # Schema for detailed view
 class ExchangeRead(ItemRead):
-    id: int
-    overall_average_rating: Decimal = Field(max_digits=3, decimal_places=2)
-    total_review_count: int  # Number of reviews with comments
-    total_rating_count: int  # Number of reviews with ratings
-    created_at: datetime
-    updated_at: datetime
-
-    # Nested related data
-    registration_country: Optional[CountryRead] = None
-    headquarters_country: Optional[CountryRead] = None
-    available_in_countries: List[CountryRead] = []
-    languages: List[LanguageRead] = []
-    supported_fiat_currencies: List[FiatCurrencyRead] = []
-    licenses: List[LicenseRead] = []
-    social_links: List[ExchangeSocialLinkRead] = []
+    referral_link: Optional[str] = None
+    year_founded: Optional[int] = Field(None, ge=1990, le=datetime.now().year)
+    reviews_page_content: Optional[str] = None  # Placeholder for reviews page content
 
     has_kyc: Optional[bool] = None
     has_p2p: Optional[bool] = None
@@ -141,7 +129,23 @@ class ExchangeRead(ItemRead):
     has_spot_trading: Optional[bool] = None
     has_demo_trading: Optional[bool] = None
 
-    tags: List[TagRead] = []
+    trading_volume_24h: Optional[Decimal] = Field(None, ge=0, max_digits=20, decimal_places=2)
+
+    spot_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_maker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    spot_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+    futures_taker_fee: Optional[Decimal] = Field(None, ge=0, max_digits=8, decimal_places=5)
+
+    fee_structure_summary: Optional[str] = None
+    security_details: Optional[str] = None
+    kyc_aml_policy: Optional[str] = None
+
+    liquidity_score: Optional[Decimal] = Field(None, ge=0, max_digits=5, decimal_places=2)
+    newbie_friendliness_score: Optional[Decimal] = Field(None, ge=0, max_digits=3, decimal_places=2)
+
+    # Foreign Key IDs for creation/update - validation might be needed in service
+    registration_country_id: Optional[int] = None
+    headquarters_country_id: Optional[int] = None
     
     class Config:
         from_attributes = True

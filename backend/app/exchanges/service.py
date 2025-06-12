@@ -8,6 +8,8 @@ from decimal import Decimal
 
 from app.models import exchange as exchange_models
 from app.models import common as common_models
+from app.models import item as item_models
+from app.models.tag import Tag
 from app.exchanges import schemas
 from app.schemas.common import PaginationParams
 import logging
@@ -268,6 +270,22 @@ class ExchangeService:
             await db.commit()
             return True
         return False
+
+    async def get_exchange_tags(self, db: AsyncSession) -> List[Tag]:
+        """
+        Get all unique tags that are attached to exchanges.
+        """
+        print("Fetching exchange tags...")
+        query = (
+            select(Tag)
+            .join(item_models.item_tags_association)
+            .join(item_models.Item)
+            .where(item_models.Item.item_type == item_models.ItemTypeEnum.exchange)
+            .distinct()
+            .order_by(Tag.name)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()
 
 
 exchange_service = ExchangeService()

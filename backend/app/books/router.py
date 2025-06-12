@@ -8,7 +8,7 @@ from app.core.database import get_async_db
 from app.books import schemas
 from app.books.service import book_service  # Updated import
 from app.schemas.common import PaginationParams, PaginatedResponse
-from app.models import books as book_models  # Add this import
+from app.schemas.tag import TagRead
 
 router = APIRouter(
     prefix="/books",
@@ -55,21 +55,7 @@ async def list_books(
     )
 
 
-@router.get("/slug/{slug}", response_model=schemas.BookRead)
-async def get_book_details_by_slug(  # Renamed for clarity
-    slug: str,
-    db: AsyncSession = Depends(get_async_db)
-):
-    """
-    Get detailed information about a specific book by its slug.
-    """
-    db_book = await book_service.get_book_by_slug(db, slug=slug)
-    if db_book is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
-    return db_book
-
-
-@router.get("/{book_id}", response_model=schemas.BookRead)
+@router.get("/details/{book_id}", response_model=schemas.BookRead)
 async def get_book_details_by_id(
     book_id: int,
     db: AsyncSession = Depends(get_async_db)
@@ -140,3 +126,13 @@ async def create_book(
 #     if not deleted:
 #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
 #     return None # Return No Content on success
+
+@router.get("/tags", response_model=list[TagRead])
+async def get_book_tags(
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Get all unique tags that are attached to books.
+    """
+    tags = await book_service.get_book_tags(db)
+    return tags

@@ -8,6 +8,7 @@ from decimal import Decimal
 from app.core.database import get_async_db
 from app.exchanges import schemas, service
 from app.schemas.common import PaginationParams, PaginatedResponse
+from app.schemas.tag import TagRead
 from app.news import schemas as news_schemas, service as news_service
 from app.guides import schemas as guide_schemas, service as guide_service
 
@@ -86,7 +87,7 @@ async def list_exchanges(
     )
 
 
-@router.get("/{slug}", response_model=schemas.ExchangeRead)
+@router.get("/details/{slug}", response_model=schemas.ExchangeRead)
 async def get_exchange_details(
     slug: str,
     db: AsyncSession = Depends(get_async_db)
@@ -142,4 +143,14 @@ async def list_exchange_guides(
         skip=pagination.skip,
         limit=pagination.limit,
     )
+
+@router.get("/tags", response_model=list[TagRead])
+async def get_exchange_tags(
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Get all unique tags that are attached to exchanges.
+    """
+    tags = await service.exchange_service.get_exchange_tags(db)
+    return tags
 

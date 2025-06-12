@@ -191,5 +191,20 @@ class BookService:
         logger.warning(f"Delete failed: Book with ID {book_id} not found.")
         return False
 
+    async def get_book_tags(self, db: AsyncSession) -> List[Tag]:
+        """
+        Get all unique tags that are attached to books.
+        """
+        query = (
+            select(Tag)
+            .join(item_tags_association)
+            .join(item_models.Item)
+            .where(item_models.Item.item_type == item_models.ItemTypeEnum.book)
+            .distinct()
+            .order_by(Tag.name)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()
+
 
 book_service = BookService()

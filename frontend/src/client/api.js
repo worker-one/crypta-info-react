@@ -455,7 +455,15 @@ export async function getBookDetails(slug) {
  * @returns {Promise<Array<object>>} - Array of tag objects { id: number, name: string }
  */
 export async function fetchBookTags() {
-    return fetchApi('/tags/', { method: 'GET' });
+    return fetchApi('/books/tags', { method: 'GET' });
+}
+
+/**
+ * Fetches a list of all exchange tags.
+ * @returns {Promise<Array<object>>} - Array of tag objects { id: number, name: string }
+ */
+export async function fetchExchangeTags() {
+    return fetchApi('/exchanges/tags', { method: 'GET' });
 }
 
 // --- Инструкции API Functions ---

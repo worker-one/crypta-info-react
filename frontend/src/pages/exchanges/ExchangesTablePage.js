@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Header from '../../components/Common/Header';
 import Footer from '../../components/Common/Footer';
-import { Container, Typography, Box, TextField } from '@mui/material';
+import SearchForm from '../../components/Common/SearchForm';
+import { Container, Box } from '@mui/material';
 import ExchangesTable from '../../components/Exchanges/ExchangesTable';
 
 
@@ -16,15 +17,11 @@ const ExchangesTablePage = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
       <Container component="main" maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
-        <Box sx={{ mb: 2 }}>
-          <TextField
-            fullWidth
-            label="Поиск по названию биржи"
-            variant="outlined"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </Box>
+        <SearchForm
+          label="Поиск по названию биржи"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
         <ExchangesTable searchTerm={searchTerm} />
       </Container>
       <Footer />

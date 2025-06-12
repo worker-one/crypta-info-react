@@ -2,7 +2,6 @@
 from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List, Literal
 from datetime import datetime
-from decimal import Decimal
 
 from app.schemas.item import ItemReadBrief, ItemRead, ItemBase
 # Import TagRead for nested tag representation
@@ -67,7 +66,7 @@ class BookRead(ItemRead):
 # --- Filtering and Sorting ---
 class BookFilterParams(BaseModel):
     name: Optional[str] = None # Filter by title
-    tag_id: Optional[int] = None # Filter by a specific tag ID
+    tag_ids: Optional[List[int]] = None # Filter by multiple tag IDs
     min_year: Optional[int] = None
     max_year: Optional[int] = None
     min_total_review_count: Optional[int] = None
