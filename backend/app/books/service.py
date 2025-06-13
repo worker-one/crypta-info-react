@@ -69,23 +69,24 @@ class BookService:
         if filters.max_total_review_count is not None:
             filter_conditions.append(book_models.Book.total_review_count <= filters.max_total_review_count)
 
-        # Filtering by M2M relationship (tags)
-        if getattr(filters, "tag_id", None):
+        # Filtering by M2M relationship (tags) - only if tag_id is provided
+        tag_filter_applied = False
+        if filters.tag_id is not None:
             query = query.join(item_tags_association).filter(item_tags_association.c.tag_id == filters.tag_id)
-            # No need to add to filter_conditions, join handles it. Ensure distinct below.
+            tag_filter_applied = True
 
         if filter_conditions:
             query = query.where(and_(*filter_conditions))
 
         # Use distinct if joins were added (like for tag_id)
-        if getattr(filters, "tag_id", None):
+        if tag_filter_applied:
             query = query.distinct()
 
         # --- Count Total ---
         count_query = select(func.count(book_models.Book.id))
         if filter_conditions:
             count_query = count_query.where(and_(*filter_conditions))
-        if getattr(filters, "tag_id", None):
+        if tag_filter_applied:
             count_query = count_query.join(item_tags_association).filter(item_tags_association.c.tag_id == filters.tag_id)
             count_query = select(func.count(book_models.Book.id.distinct())).select_from(book_models.Book)
             if filter_conditions:

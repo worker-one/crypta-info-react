@@ -1,6 +1,6 @@
 // filepath: /home/konstantin/workspace/crypta-info-react/frontend/src/components/Books/BookDetails.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { 
     Box, 
     Typography, 
@@ -19,6 +19,7 @@ import { Container } from '@mui/system';
 
 const BookDetails = ({ book: bookFromProps, onRatingSelect }) => {
     const { id: idFromParams } = useParams();
+    const navigate = useNavigate();
 
     const [internalBook, setInternalBook] = useState(null);
     const [loading, setLoading] = useState(!bookFromProps); // Initialize loading based on prop
@@ -54,6 +55,11 @@ const BookDetails = ({ book: bookFromProps, onRatingSelect }) => {
             setLoading(false);
         }
     }, [idFromParams, bookFromProps]);
+
+    const handleTagClick = (tag) => {
+        // Navigate to books table page with tag id in query string
+        navigate(`/books?tag=${encodeURIComponent(tag.id)}`);
+    };
 
     if (loading) {
         return (
@@ -117,13 +123,13 @@ const BookDetails = ({ book: bookFromProps, onRatingSelect }) => {
                                 </Box>
                             </Grid>
                             <Grid item xs={6} sm={3}>
-                                <Typography variant="h6">{book.year || 'N/A'}</Typography>
+                                <Typography align='center' variant="h6">{book.year || 'N/A'}</Typography>
                                 <Typography variant="subtitle2" color="text.secondary" align='center'>
                                     Издание
                                 </Typography>
                             </Grid>
                             <Grid item xs={6} sm={3}>
-                                <Typography variant="h6">{book.pages || 'N/A'}</Typography>
+                                <Typography align='center' variant="h6">{book.pages || 'N/A'}</Typography>
                                 <Typography variant="subtitle2" color="text.secondary" align='center'>
                                     Страниц
                                 </Typography>
@@ -143,6 +149,8 @@ const BookDetails = ({ book: bookFromProps, onRatingSelect }) => {
                                             label={tag.name}
                                             variant="outlined"
                                             size="small"
+                                            onClick={() => handleTagClick(tag)}
+                                            sx={{ cursor: 'pointer' }}
                                         />
                                     ))}
                                 </Box>

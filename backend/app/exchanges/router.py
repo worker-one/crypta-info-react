@@ -43,6 +43,7 @@ async def list_exchanges(
     db: AsyncSession = Depends(get_async_db),
     # Filtering parameters as query params
     name: Optional[str] = Query(None, description="Search by exchange name (partial match)"),
+    tag_id: Optional[int] = Query(None, description="Filter by tag ID"),
     country_id: Optional[int] = Query(None, description="Filter by registration or availability country ID"),
     has_license_in_country_id: Optional[int] = Query(None, description="Filter by country ID where the exchange holds a license"),
     has_kyc: Optional[bool] = Query(None, description="Filter by KYC type"),
@@ -63,6 +64,7 @@ async def list_exchanges(
     """
     filters = schemas.ExchangeFilterParams(
         name=name,
+        tag_id=tag_id,
         country_id=country_id,
         has_license_in_country_id=has_license_in_country_id,
         has_kyc=has_kyc,

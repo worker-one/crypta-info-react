@@ -55,16 +55,6 @@ async def add_tag_to_item(
     # The item_service.add_tag_to_item handles checks for item and tag existence.
     updated_item = await item_service.item_service.add_tag_to_item(db=db, item_id=item_id, tag_id=tag_id)
     if updated_item is None:
-        # This could be due to item not found or tag not found.
-        # Service logs should indicate which. For API, a generic 404 for item or specific for tag.
-        # Let's assume if item_service returns None, it's an issue finding the item or tag.
-        # A more granular error handling could be:
-        # item = await item_service.item_service.get_item_by_id(db, item_id) (without tags for this check)
-        # if not item: raise HTTPException(status_code=404, detail="Item not found")
-        # tag = await some_tag_service.get_tag_by_id(db, tag_id)
-        # if not tag: raise HTTPException(status_code=404, detail="Tag not found")
-        # Then call add_tag_to_item.
-        # For now, relying on service's None return.
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item or Tag not found, or association failed.")
     return updated_item
 

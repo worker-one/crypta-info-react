@@ -102,7 +102,8 @@ const ExchangeNews = ({ newsList, exchange }) => {
                                         variant="outlined"
                                         size="small"
                                         sx={{ alignSelf: 'flex-start', mt: 'auto' }}
-                                        onClick={() => handleReadMore(news)}
+                                        component="a"
+                                        href={`/exchanges/news/${news.id}`}
                                     >
                                         Читать подробнее
                                     </Button>

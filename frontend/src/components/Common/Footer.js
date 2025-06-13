@@ -8,7 +8,7 @@ const Footer = () => {
     { to: '/terms', text: 'Terms of Service' },
     { to: '/about', text: 'About Us' },
     { to: '/faq', text: 'FAQ' },
-    { to: '/contact', text: 'Contact' },
+    { to: '/contacts', text: 'Contact' },
   ];
 
   return (

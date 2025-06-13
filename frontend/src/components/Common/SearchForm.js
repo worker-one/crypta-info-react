@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, TextField, Autocomplete, Chip } from '@mui/material';
+import { Box, TextField, Chip, Typography, Grid } from '@mui/material';
 
 const SearchForm = ({ 
   label, 
@@ -10,9 +10,19 @@ const SearchForm = ({
   selectedTags = [], 
   onTagsChange, 
   showTagFilter = false,
-  tagLabel = "Фильтр по тегам",
   ...props 
 }) => {
+  const handleTagToggle = (tag) => {
+    const isSelected = selectedTags.some(selected => selected.id === tag.id);
+    if (isSelected) {
+      // Remove tag
+      onTagsChange(selectedTags.filter(selected => selected.id !== tag.id));
+    } else {
+      // Add tag
+      onTagsChange([...selectedTags, tag]);
+    }
+  };
+
   return (
     <Box sx={{ mb: 2 }}>
       <TextField
@@ -25,34 +35,32 @@ const SearchForm = ({
         sx={{ mb: showTagFilter ? 2 : 0 }}
         {...props}
       />
-      {showTagFilter && (
-        <Autocomplete
-          multiple
-          options={tags}
-          getOptionLabel={(option) => option.name}
-          value={selectedTags}
-          onChange={(event, newValue) => {
-            onTagsChange(newValue);
-          }}
-          renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <Chip
-                variant="outlined"
-                label={option.name}
-                {...getTagProps({ index })}
-                key={option.id}
-              />
-            ))
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="outlined"
-              label={tagLabel}
-              placeholder="Выберите теги для фильтрации"
-            />
-          )}
-        />
+      {showTagFilter && tags.length > 0 && (
+        <Box>
+          <Grid container spacing={1}>
+            {tags.map((tag) => {
+              const isSelected = selectedTags.some(selected => selected.id === tag.id);
+              return (
+                <Grid item key={tag.id}>
+                  <Chip
+                    label={tag.name}
+                    clickable
+                    variant={isSelected ? "filled" : "outlined"}
+                    color={isSelected ? "primary" : "default"}
+                    onClick={() => handleTagToggle(tag)}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: isSelected 
+                          ? 'primary.dark' 
+                          : 'action.hover'
+                      }
+                    }}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
       )}
     </Box>
   );

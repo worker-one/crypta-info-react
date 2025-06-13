@@ -44,7 +44,7 @@ async function fetchExchangesAPI(params) {
 }
 
 
-const ExchangesTable = ({ searchTerm }) => { // Added searchTerm prop
+const ExchangesTable = ({ searchTerm, selectedTags = [] }) => { // Added searchTerm prop
   const [exchanges, setExchanges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,29 +57,40 @@ const ExchangesTable = ({ searchTerm }) => { // Added searchTerm prop
 
   const fetchExchanges = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const params = {
-        field: orderBy,
-        direction: order,
+        skip: page * rowsPerPage,
         limit: rowsPerPage,
-        page: page + 1, // API is 1-indexed
-        ...(searchTerm && { name: searchTerm }), // Add name parameter if searchTerm is present
+        direction: order,
       };
-      // Remove undefined or null params
-      Object.keys(params).forEach(key => (params[key] == null || params[key] === '') && delete params[key]);
-      
-      const data = await fetchExchangesAPI(params);
-      setExchanges(data.items || []);
-      setTotalRows(data.total || 0);
-    } catch (err) {
-      setError(err.message);
-      setExchanges([]);
-      setTotalRows(0);
+
+      // If searchTerm is provided, add it to params
+      if (searchTerm && searchTerm.length >= 3) {
+        params.name = searchTerm;
+      }
+
+      // If orderBy is set, add it to params
+      if (orderBy) {
+        params.order_by = orderBy;
+      }
+      // Only add tag filtering if tags are actually selected
+      if (selectedTags.length > 0) {
+        // For multiple tags, we'll send the first selected tag
+        // Backend may need to be updated to support multiple tag filtering
+        params.tag_id = selectedTags[0].id;
+      }
+      // If no tags are selected, don't add tag_id parameter - show all items
+
+      const response = await fetchExchangesAPI(params);
+      setExchanges(response.items || []);
+      setTotalRows(response.total || 0);
+    } catch (error) {
+      console.error('Error fetching exchanges:', error);
+      setError('Failed to load exchanges');
     } finally {
       setLoading(false);
     }
-  }, [order, orderBy, page, rowsPerPage, searchTerm]); // Added searchTerm to dependencies
+  }, [order, orderBy, page, rowsPerPage, searchTerm, selectedTags]); // Added searchTerm to dependencies
 
   useEffect(() => {
     fetchExchanges();

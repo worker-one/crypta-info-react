@@ -87,6 +87,11 @@ class ExchangeService:
             )
             joins_applied = True
 
+        # Add tag filtering if tag_id is provided
+        if hasattr(filters, 'tag_id') and filters.tag_id is not None:
+            query = query.join(item_models.item_tags_association).filter(item_models.item_tags_association.c.tag_id == filters.tag_id)
+            joins_applied = True
+
         if filters.has_license_in_country_id:
              query = query.join(exchange_models.License) # Inner join ensures only exchanges with licenses
              filter_conditions.append(exchange_models.License.jurisdiction_country_id == filters.has_license_in_country_id)
@@ -116,26 +121,29 @@ class ExchangeService:
         if filters.country_id:
             count_query = count_query.select_from(
                 exchange_models.Exchange
-                .outerjoin(exchange_models.exchange_availability_table)
-                .outerjoin(common_models.Country, exchange_models.exchange_availability_table.c.country_id == common_models.Country.id)
+                .outerjoin(exchange_models.exchange_availability_table, 
+                           exchange_models.Exchange.id == exchange_models.exchange_availability_table.c.exchange_id)
+                .outerjoin(common_models.Country, 
+                           exchange_models.exchange_availability_table.c.country_id == common_models.Country.id)
             )
         else:
             count_query = count_query.select_from(exchange_models.Exchange)
             
+        if hasattr(filters, 'tag_id') and filters.tag_id is not None:
+            # Join to the count_query object and apply the specific filter for tag_id
+            count_query = count_query.join(item_models.item_tags_association).filter(item_models.item_tags_association.c.tag_id == filters.tag_id)
+            
         if filters.has_license_in_country_id:
-            count_query = count_query.select_from(
-                exchange_models.Exchange.join(exchange_models.License)
-            )
+            # Join to the count_query object; filter condition is in filter_conditions
+            count_query = count_query.join(exchange_models.License)
             
         if filters.supports_fiat_id:
-            count_query = count_query.select_from(
-                exchange_models.Exchange.join(exchange_models.exchange_fiat_support_table)
-            )
+            # Join to the count_query object; filter condition is in filter_conditions
+            count_query = count_query.join(exchange_models.exchange_fiat_support_table)
             
         if filters.supports_language_id:
-            count_query = count_query.select_from(
-                exchange_models.Exchange.join(exchange_models.exchange_languages_table)
-            )
+            # Join to the count_query object; filter condition is in filter_conditions
+            count_query = count_query.join(exchange_models.exchange_languages_table)
             
         if filter_conditions:
             count_query = count_query.where(and_(*filter_conditions))

@@ -8,7 +8,7 @@ const staticRoutes = (
     <Route path="/privacy" element={<StaticPage />} />
     <Route path="/about" element={<StaticPage />} />
     <Route path="/faq" element={<StaticPage />} />
-    <Route path="/contact" element={<StaticPage />} />
+    <Route path="/contacts" element={<StaticPage />} />
   </>
 );
 

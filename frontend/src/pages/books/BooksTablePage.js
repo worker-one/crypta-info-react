@@ -2,27 +2,39 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/Common/Header';
 import Footer from '../../components/Common/Footer';
 import SearchForm from '../../components/Common/SearchForm';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import BooksTable from '../../components/Books/BooksTable';
 import { fetchBookTags } from '../../client/api';
+import { useLocation } from 'react-router';
 
 const BooksTablePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     const loadTags = async () => {
       try {
         const tags = await fetchBookTags();
         setAvailableTags(tags);
+
+        // Check for tag in query string
+        const params = new URLSearchParams(location.search);
+        const tagId = params.get('tag');
+        if (tagId) {
+          const foundTag = tags.find(tag => String(tag.id) === String(tagId));
+          if (foundTag) {
+            setSelectedTags([foundTag]);
+          }
+        }
       } catch (error) {
         console.error('Error loading book tags:', error);
       }
     };
 
     loadTags();
-  }, []);
+  }, [location.search]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);

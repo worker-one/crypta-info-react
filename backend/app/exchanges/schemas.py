@@ -153,6 +153,7 @@ class ExchangeRead(ItemRead):
 # --- Filtering and Sorting ---
 class ExchangeFilterParams(BaseModel):
     name: Optional[str] = None
+    tag_id: Optional[int] = None  # Add tag filtering
     country_id: Optional[int] = None  # Filter by registration or availability
     has_license_in_country_id: Optional[int] = None
     has_kyc: Optional[bool] = None

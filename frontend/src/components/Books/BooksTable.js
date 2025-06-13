@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   TableSortLabel, TablePagination, CircularProgress, Typography, Box, Button, Link as MuiLink, Avatar,
@@ -32,7 +32,7 @@ async function fetchBooksAPI(params) {
 }
 
 
-const BooksTable = ({ searchTerm }) => { // Added searchTerm prop
+const BooksTable = ({ searchTerm, selectedTags = [] }) => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,18 +48,31 @@ const BooksTable = ({ searchTerm }) => { // Added searchTerm prop
     setError(null);
     try {
       const params = {
+        skip: page * rowsPerPage,
+        limit: rowsPerPage,
         field: orderBy,
         direction: order,
-        limit: rowsPerPage,
-        page: page + 1, // API is 1-indexed
-        ...(searchTerm && { name: searchTerm }), // Add name parameter if searchTerm is present
       };
-      // Remove undefined or null params
-      Object.keys(params).forEach(key => (params[key] == null || params[key] === '') && delete params[key]);
-      
-      const data = await fetchBooksAPI(params);
-      setBooks(data.items || []);
-      setTotalRows(data.total || 0);
+
+      // If searchTerm is provided, add it to params
+      if (searchTerm && searchTerm.length >= 3) {
+        params.name = searchTerm;
+      }
+
+      // Only add tag filtering if tags are actually selected
+      if (selectedTags.length > 0) {
+        // For multiple tags, we'll send the first selected tag
+        // Backend may need to be updated to support multiple tag filtering
+        params.tag_id = selectedTags[0].id;
+      }
+      // If no tags are selected, don't add tag_id parameter - show all items
+
+      console.log('Fetching books with params:', params); // Debug log
+
+      const response = await fetchBooksAPI(params);
+      console.log('Books fetched:', response); // Debug log
+      setBooks(response.items || []);
+      setTotalRows(response.total || 0);
     } catch (err) {
       setError(err.message);
       setBooks([]);
@@ -67,7 +80,7 @@ const BooksTable = ({ searchTerm }) => { // Added searchTerm prop
     } finally {
       setLoading(false);
     }
-  }, [order, orderBy, page, rowsPerPage, searchTerm]); // Added searchTerm to dependencies
+  }, [order, orderBy, page, rowsPerPage, searchTerm, selectedTags]); // Added searchTerm to dependencies
 
   useEffect(() => {
     fetchBooks();
@@ -79,8 +92,7 @@ const BooksTable = ({ searchTerm }) => { // Added searchTerm prop
     setOrderBy(property);
     setPage(0); // Reset to first page on sort
   };
-
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_event, newPage) => {
     setPage(newPage);
   };
 

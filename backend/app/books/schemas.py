@@ -66,7 +66,7 @@ class BookRead(ItemRead):
 # --- Filtering and Sorting ---
 class BookFilterParams(BaseModel):
     name: Optional[str] = None # Filter by title
-    tag_ids: Optional[List[int]] = None # Filter by multiple tag IDs
+    tag_id: Optional[int] = None # Filter by a specific tag ID
     min_year: Optional[int] = None
     max_year: Optional[int] = None
     min_total_review_count: Optional[int] = None

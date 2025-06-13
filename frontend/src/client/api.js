@@ -216,7 +216,7 @@ export async function adminDeleteExchange(slug) {
  * @returns {Promise<object>} - The exchange details
  */
 export async function getExchangeDetails(slug) {
-    return fetchApi(`/exchanges/${slug}`, { method: 'GET' }); // Public endpoint
+    return fetchApi(`/exchanges/details/${slug}`, { method: 'GET' }); // Public endpoint
 }
 
 /**
@@ -447,7 +447,7 @@ export async function fetchBooks(params = { skip: 0, limit: 10 }) {
  * @returns {Promise<object>} - The book details object.
  */
 export async function getBookDetails(slug) {
-    return fetchApi(`/books/${slug}`, { method: 'GET' });
+    return fetchApi(`/books/details/${slug}`, { method: 'GET' });
 }
 
 /**
