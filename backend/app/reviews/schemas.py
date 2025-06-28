@@ -11,8 +11,8 @@ class ReviewFilterParams(BaseModel):
     moderation_status: Optional[ModerationStatusEnum] = None
     item_id: Optional[int] = None
     user_id: Optional[int] = None
-    min_rating: Optional[int] = Field(None, ge=1, le=5)
-    max_rating: Optional[int] = Field(None, ge=1, le=5)
+    min_rating: Optional[float] = Field(None, ge=1, le=5)
+    max_rating: Optional[float] = Field(None, ge=1, le=5)
     has_screenshot: Optional[bool] = None
 
 class ReviewSortBy(BaseModel):
@@ -26,7 +26,7 @@ class ReviewAdminUpdatePayload(BaseModel):
 # Renamed from ExchangeReviewCreate
 class ItemReviewCreate(BaseModel):
     item_id: int # Renamed from exchange_id
-    rating: int = Field(..., ge=1, le=5) # Single rating value
+    rating: float = Field(..., ge=1, le=5) # Allow fractional rating values
     comment: Optional[str] = Field(None, min_length=3, max_length=5000)
     moderation_status: Optional[ModerationStatusEnum] = Field(None, description="Set to 'pending' by default.")
     guest_name: Optional[str] = Field(None, min_length=1, max_length=100, description="Name of the guest reviewer, if not logged in.")
@@ -47,7 +47,7 @@ class ReviewUsefulnessVoteCreate(BaseModel):
 # --- Review Schemas ---
 class ReviewBase(BaseModel):
     comment: Optional[str] = Field(None, min_length=3, max_length=5000)
-    rating: int = Field(..., ge=1, le=5) # Add single rating here
+    rating: float = Field(..., ge=1, le=5) # Add single rating here
 
 class ReviewCreate(ReviewBase):
     item_id: int # Renamed from exchange_id

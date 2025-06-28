@@ -3,7 +3,7 @@ import enum
 from datetime import datetime
 
 from sqlalchemy import (
-    Column, Integer, String, Text, DateTime, Boolean, SmallInteger,
+    Column, Integer, String, Text, DateTime, Boolean, Float,
     ForeignKey, Enum as SQLAlchemyEnum, Table, UniqueConstraint, Index, CheckConstraint
 )
 from sqlalchemy.orm import relationship
@@ -32,11 +32,15 @@ class Review(Base):
     # New field for guest name
     guest_name = Column(String(100), nullable=True)
 
-    # *** CHANGE: Link to the generic 'items' table instead of 'exchanges' ***
+    # Link to the generic 'items' table
     item_id = Column(Integer, ForeignKey('items.id', ondelete='CASCADE'), nullable=False, index=True)
 
     comment = Column(Text, nullable=True)
-    rating = Column(SmallInteger, nullable=False)  # 1 to 5 rating
+    # Allow fractional ratings (e.g., 4.5)
+    rating = Column(
+        Float,  # Changed from SmallInteger to Float
+        nullable=False
+    )
     moderation_status = Column(SQLAlchemyEnum(ModerationStatusEnum, name='moderation_status_enum'), nullable=False, default=ModerationStatusEnum.pending, index=True)
     moderator_notes = Column(Text)
     moderated_by_user_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
@@ -45,6 +49,7 @@ class Review(Base):
     not_useful_votes_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, server_default=func.now(), index=True)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
 
     # --- Relationships ---
     user = relationship("User", back_populates="reviews", foreign_keys=[user_id])

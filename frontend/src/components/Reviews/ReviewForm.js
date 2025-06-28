@@ -25,12 +25,12 @@ const SubmitReviewForm = ({ itemId, onItemReviewed, preselectedRating }) => {
         }
     }, [preselectedRating]);
 
-    // Auto-clear success message after 5 seconds
+    // Auto-clear success message after 15 seconds
     useEffect(() => {
         if (success) {
             const timer = setTimeout(() => {
                 setSuccess('');
-            }, 5000);
+            }, 15000);
             return () => clearTimeout(timer);
         }
     }, [success]);
@@ -59,13 +59,12 @@ const SubmitReviewForm = ({ itemId, onItemReviewed, preselectedRating }) => {
 
             await submitItemReview(itemId, reviewData);
             setSuccess('Спасибо за отзыв! Ваш отзыв отправлен на модерацию и будет опубликован после проверки.');
-            alert('Спасибо за отзыв! Ваш отзыв отправлен на модерацию и будет опубликован после проверки.');
             setComment('');
             setRating(0);
             setGuestName('');
-            if (onItemReviewed) {
-                onItemReviewed();
-            }
+            // if (onItemReviewed) {
+            //     onItemReviewed();
+            // }
         } catch (err) {
             setError(err.message || 'Не удалось отправить отзыв.');
         } finally {
