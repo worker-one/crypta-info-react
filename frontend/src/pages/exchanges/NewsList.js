@@ -9,8 +9,8 @@ import ArticleIcon from '@mui/icons-material/Article';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LanguageIcon from '@mui/icons-material/Language';
 import { getExchangeDetails, fetchExchangeNews, fetchExchangeGuides, BASE_API_URL, getNewsItem } from '../../client/api'; // Adjust path
-import Header from '../../components/Common/Header';
-import Footer from '../../components/Common/Footer';
+import Header from '../../components/common/Header';
+import Footer from '../../components/common/Footer';
 
 
 const ExchangeDetailsPage = () => {

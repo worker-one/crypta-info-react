@@ -110,7 +110,12 @@ export async function fetchExchanges(params = { page: 1, limit: 10 }) {
 
     for (const [key, value] of Object.entries(params)) {
         if (value !== null && value !== undefined && value !== '' && key !== 'page') {
-            cleanedParams[key] = value;
+            // Map frontend parameter names to backend expected names
+            if (key === 'order_by') {
+                cleanedParams['field'] = value; // Backend expects 'field' not 'order_by'
+            } else {
+                cleanedParams[key] = value;
+            }
         }
     }
     // Ensure skip and limit are part of the cleanedParams for the query string

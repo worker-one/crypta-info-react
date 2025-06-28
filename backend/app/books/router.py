@@ -55,15 +55,15 @@ async def list_books(
     )
 
 
-@router.get("/details/{book_id}", response_model=schemas.BookRead)
-async def get_book_details_by_id(
-    book_id: int,
+@router.get("/details/{book_slug}", response_model=schemas.BookRead)
+async def get_book_details_by_slug(
+    slug: str,
     db: AsyncSession = Depends(get_async_db)
 ):
     """
-    Get detailed information about a specific book by its ID.
+    Get detailed information about a specific book by its slug.
     """
-    db_book = await book_service.get_book_by_id(db, book_id=book_id)
+    db_book = await book_service.get_book_by_slug(db, slug=slug)
     if db_book is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
     return db_book

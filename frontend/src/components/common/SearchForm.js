@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, TextField, Chip, Typography, Grid } from '@mui/material';
+import { Box, TextField, Chip, Typography, Grid, InputAdornment, IconButton } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const SearchForm = ({ 
   label, 
@@ -23,6 +24,16 @@ const SearchForm = ({
     }
   };
 
+  const handleClear = () => {
+    // Simulate clearing the input by calling onChange with an empty value
+    if (onChange) {
+      // If onChange is a synthetic event handler, create a fake event
+      if (typeof onChange === 'function') {
+        onChange({ target: { value: '' } });
+      }
+    }
+  };
+
   return (
     <Box sx={{ mb: 2 }}>
       <TextField
@@ -33,6 +44,22 @@ const SearchForm = ({
         value={value}
         onChange={onChange}
         sx={{ mb: showTagFilter ? 2 : 0 }}
+        InputProps={{
+          endAdornment: (
+            value ? (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="clear search"
+                  onClick={handleClear}
+                  edge="end"
+                  size="small"
+                >
+                  <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            ) : null
+          ),
+        }}
         {...props}
       />
       {showTagFilter && tags.length > 0 && (

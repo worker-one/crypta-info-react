@@ -32,7 +32,6 @@ def map_api_to_exchange(api_data, country_id):
         "name": api_data.get("name"),
         "slug": api_data.get("id"),
         "description": api_data.get("description"),
-        "logo_url": api_data.get("image"),
         "website_url": api_data.get("url"),
         "year_founded": api_data.get("year_established"),
         "trading_volume_24h": api_data.get("trade_volume_24h_btc")*107500,

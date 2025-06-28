@@ -25,11 +25,11 @@ function formatVolume(volume) {
   }
   const numVolume = parseFloat(volume);
   if (numVolume >= 1000000000) {
-    return `$${Math.round(numVolume / 1000000000)} млрд`;
+    return `$${(numVolume / 1000000000).toFixed(2)} млрд`;
   } else if (numVolume >= 1000000) {
-    return `$${Math.round(numVolume / 1000000)} млн`;
+    return `$${(numVolume / 1000000).toFixed(2)} млн`;
   } else {
-    return `$${numVolume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    return `$${numVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 }
 
@@ -61,18 +61,19 @@ const ExchangesTable = ({ searchTerm, selectedTags = [] }) => { // Added searchT
       const params = {
         skip: page * rowsPerPage,
         limit: rowsPerPage,
-        direction: order,
       };
+
+      // Add sorting parameters if orderBy is set
+      if (orderBy) {
+        params.field = orderBy; // Backend expects 'field' parameter
+        params.direction = order; // Backend expects 'direction' parameter
+      }
 
       // If searchTerm is provided, add it to params
       if (searchTerm && searchTerm.length >= 3) {
         params.name = searchTerm;
       }
 
-      // If orderBy is set, add it to params
-      if (orderBy) {
-        params.order_by = orderBy;
-      }
       // Only add tag filtering if tags are actually selected
       if (selectedTags.length > 0) {
         // For multiple tags, we'll send the first selected tag
@@ -117,7 +118,7 @@ const ExchangesTable = ({ searchTerm, selectedTags = [] }) => { // Added searchT
     if (event.target.closest('a, button')) {
       return;
     }
-    navigate(`details/${slug}`);
+    navigate(`${slug}/details`);
   };
 
   if (loading) {
@@ -205,7 +206,7 @@ const ExchangesTable = ({ searchTerm, selectedTags = [] }) => { // Added searchT
 
                     {/* Reviews */}
                     <TableCell align='center'>
-                      <MuiLink color='secondary' component={RouterLink} to={`/exchanges/details/${exchange.slug}`} onClick={(e) => e.stopPropagation()}>
+                      <MuiLink color='secondary' component={RouterLink} to={`/exchanges/${exchange.slug}/reviews`} onClick={(e) => e.stopPropagation()}>
                         {reviewCount}
                       </MuiLink>
                     </TableCell>
@@ -222,7 +223,7 @@ const ExchangesTable = ({ searchTerm, selectedTags = [] }) => { // Added searchT
                         variant="contained"
                         size="small"
                         color="#636262"
-                        href={`${BASE_URL_API}/${exchange.slug}`}
+                        href={`/exchanges/${exchange.slug}/details`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}

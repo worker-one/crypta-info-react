@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
-import Header from '../components/Common/Header';
-import Footer from '../components/Common/Footer';
+import Header from '../components/common/Header';
+import Footer from '../components/common/Footer';
 import { Box, Container, Typography, CircularProgress, Alert } from '@mui/material';
 import { fetchStaticPage } from '../client/api';
 

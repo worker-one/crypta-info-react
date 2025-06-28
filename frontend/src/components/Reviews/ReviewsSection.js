@@ -80,6 +80,7 @@ const ReviewsSection = ({ itemId, itemName, preselectedRating }) => {
                     {showSubmitForm ? 'Отменить' : 'Оставить отзыв'}
                 </Button>
             </Box>
+            
 
             {showSubmitForm && (
                 <ReviewForm itemId={itemId} onItemReviewed={handleReviewSubmitted} preselectedRating={preselectedRating} />

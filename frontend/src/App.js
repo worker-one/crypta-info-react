@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Link } from 'react-router';
+import { Routes, Route } from 'react-router'; // Changed from 'react-router' to 'react-router'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import exchangeRoutes from './routes/exchanges.js'; // Import the exchange routes
 import bookRoutes from './routes/books.js';
@@ -45,7 +45,7 @@ function App() {
                     {authRoutes} {/* Use the imported auth routes */}
                     {adminRoutes} {/* Add admin routes if any */}
                     {profileRoutes } {/* Add profile routes if any */}
-                    { staticRoutes } {/* Add static routes if any */}
+                    {staticRoutes } {/* Add static routes if any */}
                 </Routes>
             </main>
         </ThemeProvider>

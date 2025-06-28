@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from '../components/Common/Header';
-import Footer from '../components/Common/Footer';
+import Header from '../components/common/Header';
+import Footer from '../components/common/Footer';
 import { Container, Box } from '@mui/material';
 
 

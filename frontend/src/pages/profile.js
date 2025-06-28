@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import Header from '../components/Common/Header';
-import Footer from '../components/Common/Footer';
+import Header from '../components/common/Header';
+import Footer from '../components/common/Footer';
 import { Button, Card, CardContent, CardActions, Box, Container, Typography, Paper, CircularProgress, Alert, List, Divider } from '@mui/material';
 import { getUserProfileData } from '../client/auth';
 import { listMyItemReviews } from '../client/api'; // Replace with user endpoints

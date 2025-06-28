@@ -6,12 +6,21 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { formatVolume } from '../../utils/formatters'; // Adjust path
 import { BASE_API_URL } from '../../client/api'; // Adjust path
 import { Container } from '@mui/system';
+import { useNavigate } from 'react-router'; // Adjust path if necessary
 
 const ExchangeDetails = ({ exchange, onRatingClick }) => {
     if (!exchange) return null;
 
     const [hoveredRating, setHoveredRating] = useState(-1);
     const [selectedRating, setSelectedRating] = useState(null);
+
+    const navigate = useNavigate();
+
+    const handleTagClick = (tag) => {
+        // Navigate to exchanges table page with tag id in query string
+        navigate(`/exchanges?tag=${encodeURIComponent(tag.id)}`);
+    };
+
 
     const renderServiceStatus = (hasService) => (
         hasService ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />
@@ -80,6 +89,24 @@ const ExchangeDetails = ({ exchange, onRatingClick }) => {
                         </Grid>
                     )}
                 </Grid>
+
+                {/* Tags */}
+                {exchange.tags && exchange.tags.length > 0 && (
+                    <Box>
+                        <Box display="flex" flexWrap="wrap" gap={1}>
+                            {exchange.tags.map((tag, index) => (
+                                <Chip
+                                    key={index}
+                                    label={tag.name}
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => handleTagClick(tag)}
+                                    sx={{ cursor: 'pointer' }}
+                                />
+                            ))}
+                        </Box>
+                    </Box>
+                )}
             </Paper>
 
             {exchange.overview && (
@@ -88,24 +115,7 @@ const ExchangeDetails = ({ exchange, onRatingClick }) => {
                 </Box>
             )}
 
-            <Grid container spacing={3} alignItems="stretch" sx={{ mt: 2 }}> {/* Added alignItems="stretch" and sx={{ mt: 2 }} for spacing from above Paper */}
-                {showServicesCard && (
-                    <Grid item size={6} xs={6} md={6}> {/* Added item prop */}
-                        <Paper variant="outlined" sx={{ p: 2, height: '100%' }}> {/* Added height: '100%' */}
-                            <Typography variant="h6" gutterBottom>Сервисы</Typography>
-                            <Box>
-                                <ServiceItem label="Копитрейдинг" status={exchange.has_copy_trading} />
-                                <ServiceItem label="P2P Обмен" status={exchange.has_p2p} />
-                                <ServiceItem label="Стейкинг" status={exchange.has_staking} />
-                                <ServiceItem label="Фьючерсы" status={exchange.has_futures} />
-                                <ServiceItem label="Спотовая торговля" status={exchange.has_spot_trading} />
-                                <ServiceItem label="Демо трейдинг" status={exchange.has_demo_trading} />
-                            </Box>
-                        </Paper>
-                    </Grid>
-                )}
-
-                {showFeesCard && (
+            {showFeesCard && (
                     <Grid item size={6} xs={12} md={6}> {/* Added item prop */}
                         <Paper variant="outlined" sx={{ p: 2, height: '100%' }}> {/* Added height: '100%' */}
                             <Typography variant="h6" gutterBottom>Комиссии и бонусы</Typography>
@@ -148,7 +158,6 @@ const ExchangeDetails = ({ exchange, onRatingClick }) => {
                         </Paper>
                     </Grid>
                 )}
-            </Grid>
 
             {exchange.overview && (
                 <Box sx={{ mb: 3, mt: 2 }}>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import Header from '../components/Common/Header';
-import Footer from '../components/Common/Footer';
+import Header from '../components/common/Header';
+import Footer from '../components/common/Footer';
 import { Box, Container, Typography, Paper, CircularProgress, Alert, List } from '@mui/material';
 import { getUserProfileData } from '../client/auth'; // Assuming this gets the locally stored profile
 import { adminListExchanges, listBooks, adminListPendingReviews, adminModerateReview } from '../client/api';

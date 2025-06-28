@@ -101,12 +101,12 @@ const BooksTable = ({ searchTerm, selectedTags = [] }) => {
     setPage(0); // Reset to first page on rows per page change
   };
 
-  const handleRowClick = (event, id) => {
+  const handleRowClick = (event, slug) => {
     // Prevent navigation if the click was on a link or button inside the row
     if (event.target.closest('a, button')) {
       return;
     }
-    navigate(`details/${id}`);
+    navigate(`/books/${slug}/details`);
   };
 
   if (loading) {
@@ -165,7 +165,7 @@ const BooksTable = ({ searchTerm, selectedTags = [] }) => {
                   <TableRow
                     hover
                     key={book.id}
-                    onClick={(event) => handleRowClick(event, book.id)}
+                    onClick={(event) => handleRowClick(event, book.slug)}
                     sx={{ cursor: 'pointer' }}
                   >
                     {/* Index */}
@@ -206,7 +206,7 @@ const BooksTable = ({ searchTerm, selectedTags = [] }) => {
 
                     {/* Reviews */}
                     <TableCell align="center">
-                        <MuiLink color='secondary' component={RouterLink} to={`/books/details/${book.id}`} onClick={(e) => e.stopPropagation()}>
+                        <MuiLink color='secondary' component={RouterLink} to={`/books/${book.slug}/details`} onClick={(e) => e.stopPropagation()}>
                         {reviewCount}
                         </MuiLink>
                     </TableCell>
@@ -229,10 +229,9 @@ const BooksTable = ({ searchTerm, selectedTags = [] }) => {
                     <TableCell align="center">
                       <Button
                         component={RouterLink}
-                        to={`details/${book.id}`}
+                        to={`/books/${book.slug}/details`}
                         variant="outlined"
                         size="small"
-
                         onClick={(e) => e.stopPropagation()}
                         sx={{ minWidth: 'auto', px: 2 }}
                       >
